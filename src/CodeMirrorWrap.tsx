@@ -8,6 +8,7 @@ import 'codemirror/addon/dialog/dialog.js';
 import 'codemirror/addon/search/searchcursor.js';
 import 'codemirror/addon/edit/matchbrackets.js';
 import 'codemirror/addon/edit/closebrackets.js';
+import 'codemirror/addon/display/placeholder.js';
 import 'codemirror/addon/mode/overlay.js';
 import 'codemirror/mode/clike/clike.js';
 import 'codemirror/mode/markdown/markdown.js';
