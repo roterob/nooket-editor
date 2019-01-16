@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as deepEqual from 'fast-deep-equal';
 import * as codemirror from 'codemirror';
 
 import 'codemirror/lib/codemirror.css';
@@ -463,283 +464,6 @@ class Shared implements ICommon {
   }
 }
 
-export class Controlled extends React.Component<IControlledCodeMirror, any> {
-  /** @internal */
-  private applied: boolean;
-  /** @internal */
-  private appliedNext: boolean;
-  /** @internal */
-  private appliedUserDefined: boolean;
-  /** @internal */
-  private deferred: any;
-  /** @internal */
-  private editor: IInstance;
-  /** @internal */
-  private emulating: boolean;
-  /** @internal */
-  private hydrated: boolean;
-  /** @internal */
-  private initCb: () => void;
-  /** @internal */
-  private mirror: any;
-  /** @internal */
-  private mounted: boolean;
-  /** @internal */
-  private ref: HTMLElement;
-  /** @internal */
-  private shared: Shared;
-
-  /** @internal */
-  constructor(props: IControlledCodeMirror) {
-    super(props);
-
-    if (SERVER_RENDERED) return;
-
-    this.applied = false;
-    this.appliedNext = false;
-    this.appliedUserDefined = false;
-    this.deferred = null;
-    this.emulating = false;
-    this.hydrated = false;
-    this.initCb = () => {
-      if (this.props.editorDidConfigure) {
-        this.props.editorDidConfigure(this.editor);
-      }
-    };
-    this.mounted = false;
-  }
-
-  /** @internal */
-  private hydrate(props) {
-    let userDefinedOptions = Object.assign(
-      {},
-      cm.defaults,
-      this.editor.options,
-      props.options || {}
-    );
-    let optionDelta = Object.keys(userDefinedOptions).some(
-      key => this.editor.getOption(key) !== userDefinedOptions[key]
-    );
-
-    if (optionDelta) {
-      Object.keys(userDefinedOptions).forEach(key => {
-        if (props.options.hasOwnProperty(key)) {
-          if (this.editor.getOption(key) !== userDefinedOptions[key]) {
-            this.editor.setOption(key, userDefinedOptions[key]);
-            this.mirror.setOption(key, userDefinedOptions[key]);
-          }
-        }
-      });
-    }
-
-    if (!this.hydrated) {
-      if (!this.mounted) {
-        this.initChange(props.value || '');
-      } else {
-        if (this.deferred) {
-          this.resolveChange();
-        } else {
-          this.initChange(props.value || '');
-        }
-      }
-    }
-
-    this.hydrated = true;
-  }
-
-  /** @internal */
-  private initChange(value) {
-    this.emulating = true;
-
-    let lastLine = this.editor.lastLine();
-    let lastChar = this.editor.getLine(this.editor.lastLine()).length;
-
-    this.editor.replaceRange(
-      value || '',
-      { line: 0, ch: 0 },
-      { line: lastLine, ch: lastChar }
-    );
-
-    this.mirror.setValue(value);
-    this.editor.clearHistory();
-    this.mirror.clearHistory();
-
-    this.emulating = false;
-  }
-
-  /** @internal */
-  private resolveChange() {
-    this.emulating = true;
-
-    if (this.deferred.origin === 'undo') {
-      this.editor.undo();
-    } else if (this.deferred.origin === 'redo') {
-      this.editor.redo();
-    } else {
-      this.editor.replaceRange(
-        this.deferred.text,
-        this.deferred.from,
-        this.deferred.to,
-        this.deferred.origin
-      );
-    }
-
-    this.emulating = false;
-    this.deferred = null;
-  }
-
-  /** @internal */
-  private mirrorChange(deferred) {
-    if (deferred.origin === 'undo') {
-      this.editor.setHistory(this.mirror.getHistory());
-      this.mirror.undo();
-    } else if (deferred.origin === 'redo') {
-      this.editor.setHistory(this.mirror.getHistory());
-      this.mirror.redo();
-    } else {
-      this.mirror.replaceRange(
-        deferred.text,
-        deferred.from,
-        deferred.to,
-        deferred.origin
-      );
-    }
-
-    return this.mirror.getValue();
-  }
-
-  /** @internal */
-  public componentWillMount() {
-    if (SERVER_RENDERED) return;
-
-    if (this.props.editorWillMount) {
-      this.props.editorWillMount();
-    }
-  }
-
-  /** @internal */
-  public componentDidMount() {
-    if (SERVER_RENDERED) return;
-
-    if (this.props.defineMode) {
-      if (this.props.defineMode.name && this.props.defineMode.fn) {
-        cm.defineMode(this.props.defineMode.name, this.props.defineMode.fn);
-      }
-    }
-
-    this.editor = cm(this.ref) as IInstance;
-
-    this.shared = new Shared(this.editor, this.props);
-
-    this.mirror = (cm as any)(() => {});
-
-    this.editor.on('electricInput', () => {
-      this.mirror.setHistory(this.editor.getHistory());
-    });
-
-    this.editor.on('cursorActivity', () => {
-      this.mirror.setCursor(this.editor.getCursor());
-    });
-
-    this.editor.on('beforeChange', (cm, data) => {
-      if (this.emulating) {
-        return;
-      }
-
-      data.cancel();
-
-      this.deferred = data;
-
-      let phantomChange = this.mirrorChange(this.deferred);
-
-      if (this.props.onBeforeChange)
-        this.props.onBeforeChange(this.editor, this.deferred, phantomChange);
-    });
-
-    this.editor.on('change', (cm, data) => {
-      if (!this.mounted) {
-        return;
-      }
-
-      if (this.props.onChange) {
-        this.props.onChange(this.editor, data, this.editor.getValue());
-      }
-    });
-
-    this.hydrate(this.props);
-
-    this.shared.apply(this.props);
-
-    this.applied = true;
-
-    this.mounted = true;
-
-    this.shared.wire(this.props);
-
-    if (this.editor.getOption('autofocus')) {
-      this.editor.focus();
-    }
-
-    if (this.props.editorDidMount) {
-      this.props.editorDidMount(
-        this.editor,
-        this.editor.getValue(),
-        this.initCb
-      );
-    }
-  }
-
-  /** @internal */
-  public componentWillReceiveProps(nextProps) {
-    if (SERVER_RENDERED) return;
-
-    let preserved: IPreservedOptions = { cursor: null };
-
-    if (nextProps.value !== this.props.value) {
-      this.hydrated = false;
-    }
-
-    if (!this.props.autoCursor && this.props.autoCursor !== undefined) {
-      preserved.cursor = this.editor.getCursor();
-    }
-
-    this.hydrate(nextProps);
-
-    if (!this.appliedNext) {
-      this.shared.applyNext(this.props, nextProps, preserved);
-      this.appliedNext = true;
-    }
-
-    this.shared.applyUserDefined(this.props, preserved);
-    this.appliedUserDefined = true;
-  }
-
-  /** @internal */
-  public componentWillUnmount() {
-    if (SERVER_RENDERED) return;
-
-    if (this.props.editorWillUnmount) {
-      this.props.editorWillUnmount(cm);
-    }
-  }
-
-  /** @internal */
-  public shouldComponentUpdate(nextProps, nextState) {
-    return !SERVER_RENDERED;
-  }
-
-  /** @internal */
-  public render() {
-    if (SERVER_RENDERED) return null;
-
-    let className = this.props.className
-      ? `react-codemirror2 ${this.props.className}`
-      : 'react-codemirror2';
-
-    return <div className={className} ref={self => (this.ref = self)} />;
-  }
-}
-
 export class UnControlled extends React.Component<
   IUnControlledCodeMirror,
   any
@@ -897,49 +621,6 @@ export class UnControlled extends React.Component<
   }
 
   /** @internal */
-  public componentWillReceiveProps(nextProps) {
-    if (this.detached && nextProps.detach === false) {
-      this.detached = false;
-      if (this.props.editorDidAttach) {
-        this.props.editorDidAttach(this.editor);
-      }
-    }
-
-    if (!this.detached && nextProps.detach === true) {
-      this.detached = true;
-      if (this.props.editorDidDetach) {
-        this.props.editorDidDetach(this.editor);
-      }
-    }
-
-    if (SERVER_RENDERED || this.detached) return;
-
-    let preserved: IPreservedOptions = { cursor: null };
-
-    if (nextProps.value !== this.props.value) {
-      this.hydrated = false;
-      this.applied = false;
-      this.appliedUserDefined = false;
-    }
-
-    if (!this.props.autoCursor && this.props.autoCursor !== undefined) {
-      preserved.cursor = this.editor.getCursor();
-    }
-
-    this.hydrate(nextProps);
-
-    if (!this.applied) {
-      this.shared.apply(this.props);
-      this.applied = true;
-    }
-
-    if (!this.appliedUserDefined) {
-      this.shared.applyUserDefined(this.props, preserved);
-      this.appliedUserDefined = true;
-    }
-  }
-
-  /** @internal */
   public componentWillUnmount() {
     if (SERVER_RENDERED) return;
 
@@ -949,22 +630,32 @@ export class UnControlled extends React.Component<
   }
 
   /** @internal */
-  public shouldComponentUpdate(nextProps, nextState) {
-    let update = true;
+  public shouldComponentUpdate(nextProps) {
+    let update = false;
 
     if (SERVER_RENDERED) update = false;
     if (this.detached) update = false;
+
+    if (!update) {
+      const { value, ...restProps } = this.props;
+      const { value: nextValue, ...restNextProps } = nextProps;
+
+      update =
+        (value !== nextValue && this.editor.getValue() !== nextValue) ||
+        !deepEqual(restProps, restNextProps);
+    }
 
     return update;
   }
 
   /** @internal */
   public render() {
+    console.log('Render');
     if (SERVER_RENDERED) return null;
 
     let className = this.props.className
-      ? `react-codemirror2 ${this.props.className}`
-      : 'react-codemirror2';
+      ? `react-codemirror ${this.props.className}`
+      : 'react-codemirror';
 
     return <div className={className} ref={self => (this.ref = self)} />;
   }

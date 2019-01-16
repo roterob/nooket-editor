@@ -2,83 +2,118 @@ import * as React from 'react';
 import classNames from 'classnames';
 import { Icon } from 'antd';
 import { UnControlled as CodeMirrorWrap, IInstance } from './CodeMirrorWrap';
+import { wordCount, getState, toolbarBuiltInButtons } from './util';
+import { EnumToolbarButtons } from './types';
 
 import './css/custom.css';
 
-class NooketEditor extends React.Component {
+export type NooketEditorProps = {
+  showToolbar?: boolean;
+  showStatusbar?: boolean;
+  toolbar?: EnumToolbarButtons[];
+};
+
+class NooketEditor extends React.Component<NooketEditorProps, any> {
+  static defaultProps = {
+    showToolbar: true,
+    showStatusbar: true,
+    toolbar: [
+      EnumToolbarButtons.bold,
+      EnumToolbarButtons.italic,
+      EnumToolbarButtons.heading,
+      EnumToolbarButtons.separator,
+      EnumToolbarButtons.quote,
+      EnumToolbarButtons.unorderedList,
+      EnumToolbarButtons.orderedList,
+      EnumToolbarButtons.separator,
+      EnumToolbarButtons.link,
+      EnumToolbarButtons.image,
+      EnumToolbarButtons.separator,
+      EnumToolbarButtons.preview,
+      EnumToolbarButtons.sideBySide,
+      EnumToolbarButtons.fullscreen,
+    ],
+  };
+
   state = {
     focusOnEditor: false,
     lines: 0,
     words: 0,
     cursor: '0:0',
-    openDialog: false,
+    stat: {},
   };
 
   editor: IInstance = null;
-
-  private handleOpenDialog = openDialog => this.setState({ openDialog });
+  numSep: number = 0;
 
   private handleEditorMounted = editor => {
     this.editor = editor;
-
-    editor.openDialog = this.wrapOpenDialog(editor.openDialog);
   };
 
   private handleFocusOnEditor = focusOnEditor =>
     this.setState({ focusOnEditor });
 
-  private wrapCloseDialog(fn) {
-    const that = this;
-    return function() {
-      that.handleOpenDialog(false);
-      if (fn) {
-        fn.apply(that.editor, arguments);
-      }
+  private handleEditorChange = (editor, data, value) => {
+    const newState = {
+      lines: this.editor.lineCount(),
+      words: wordCount(value),
     };
-  }
 
-  private wrapOpenDialog(fn) {
-    const that = this;
-    return function(template, callback, options) {
-      console.log(typeof template);
-      that.handleOpenDialog(true);
-      const newOptions = options;
-      newOptions.onClose = that.wrapCloseDialog(options.close);
-      if (fn) {
-        fn.apply(that.editor, arguments);
-      }
-    };
-  }
+    this.setState(newState);
+  };
 
-  private getToolbarButton = ({ key, icon, title }: any) =>
-    icon ? (
-      <a key={key} title={title}>
-        <Icon type={icon} />
-      </a>
-    ) : (
-      <i key={key} className="separator">
-        |
-      </i>
-    );
+  private handleCursorActivity = () => {
+    const pos = this.editor.getCursor();
+    const stat = getState(this.editor, pos);
+
+    this.setState({ cursor: `${pos.line + 1}:${pos.ch + 1}`, stat });
+  };
+
+  private getToolbarButton = buttonName => {
+    const buttonDefinition = toolbarBuiltInButtons[buttonName];
+
+    if (buttonName === EnumToolbarButtons.separator) {
+      this.numSep += 1;
+
+      return (
+        <i key={`${buttonName}${this.numSep}`} className="separator">
+          |
+        </i>
+      );
+    } else if (buttonDefinition) {
+      const { name, title, icon, action } = buttonDefinition;
+      const { stat } = this.state;
+
+      return (
+        <a
+          key={name}
+          title={title}
+          onClick={() => action(this.editor)}
+          className={classNames({ active: stat[name] })}
+        >
+          <Icon type={icon} />
+        </a>
+      );
+    }
+  };
 
   private getToolbar = () => {
-    const toolbar = [
-      { key: 'bold', icon: 'bold', title: 'Bold (Ctrl+B)' },
-      { key: 'italic', icon: 'italic', title: 'Italic (Ctrl+I)' },
-      { key: 'underline', icon: 'underline', title: 'Underline (Ctrl+U)' },
-      { key: 'sep1' },
-    ];
+    const { toolbar } = this.props;
+
+    this.numSep = 0;
+
     return (
       <div className="editor-toolbar">
-        {toolbar.map(button => this.getToolbarButton(button))}
+        {toolbar.map(buttonName => this.getToolbarButton(buttonName))}
       </div>
     );
   };
 
   private getFooter = () => {
-    const { lines, words, cursor, openDialog } = this.state;
+    const { showStatusbar } = this.props;
+    const { lines, words, cursor } = this.state;
     return (
-      openDialog || (
+      showStatusbar && (
         <div className="editor-statusbar">
           <span className="autosave" />
           <span className="lines">{lines}</span>
@@ -110,8 +145,9 @@ class NooketEditor extends React.Component {
             viewportMargin: Infinity,
             placeholder: 'Write something interesting here',
           }}
-          onChange={(editor, data, value) => {}}
+          onChange={this.handleEditorChange}
           editorDidMount={this.handleEditorMounted}
+          onCursorActivity={this.handleCursorActivity}
         />
         {this.getFooter()}
       </div>

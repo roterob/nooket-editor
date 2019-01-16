@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "codemirror": "^5.42.2",
+    "fast-deep-equal": "^2.0.1",
     "nooket-common": "0.0.9"
   },
   "peerDependencies": {

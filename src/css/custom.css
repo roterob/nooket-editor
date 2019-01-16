@@ -2,11 +2,15 @@
   height: auto;
   min-height: 150px;
   height: auto;
-  padding: 10px;
+  padding: 5px;
   font: inherit;
   z-index: 1;
   font-size: 16px;
   margin: 0 2px;
+}
+
+.CodeMirror.CodeMirror-empty {
+  font-style: italic;
 }
 
 .CodeMirror-scroll {
@@ -27,7 +31,9 @@
 .CodeMirror-sided {
   width: 50% !important;
 }
-
+.CodeMirror-dialog.CodeMirror-dialog-bottom {
+  font-size: 14px;
+}
 .editor-toolbar {
   position: relative;
   opacity: 0.6;
