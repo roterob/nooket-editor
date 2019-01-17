@@ -1,3 +1,20 @@
+import BoldSolid from './svg/BoldSolid';
+import CodeSolid from './svg/CodeSolid';
+import ColumnsSolid from './svg/ColumnsSolid';
+import ExpandArrowsAltSolid from './svg/ExpandArrowsAltSolid';
+import GlassesSolid from './svg/GlassesSolid';
+import HeadingSolid from './svg/HeadingSolid';
+import ImageRegular from './svg/ImageRegular';
+import ItalicSolid from './svg/ItalicSolid';
+import LinkSolid from './svg/LinkSolid';
+import ListOlSolid from './svg/ListOlSolid';
+import ListUlSolid from './svg/ListUlSolid';
+import QuoteLeftSolid from './svg/QuoteLeftSolid';
+import RedoSolid from './svg/RedoSolid';
+import StrikethroughSolid from './svg/StrikethroughSolid';
+import TableSolid from './svg/TableSolid';
+import UndoSolid from './svg/UndoSolid';
+
 export function wordCount(data) {
   var pattern = /[a-zA-Z0-9_\u0392-\u03c9\u0410-\u04F9]+|[\u4E00-\u9FFF\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\uac00-\ud7af]+/g;
   var m = data.match(pattern);
@@ -784,58 +801,57 @@ export const toolbarBuiltInButtons = {
   bold: {
     name: 'bold',
     action: toggleBold,
-    icon: 'bold',
+    icon: BoldSolid,
     title: 'Bold',
     default: true,
+    shortcut: 'Cmd-B',
   },
   italic: {
     name: 'italic',
     action: toggleItalic,
-    icon: 'italic',
+    icon: ItalicSolid,
     title: 'Italic',
     default: true,
+    shortcut: 'Cmd-I',
   },
   strikethrough: {
     name: 'strikethrough',
     action: toggleStrikethrough,
-    icon: 'strikethrough',
+    icon: StrikethroughSolid,
     title: 'Strikethrough',
+    shortcut: 'Cmd--',
   },
   heading: {
     name: 'heading',
     action: toggleHeadingSmaller,
-    icon: 'fa fa-header',
+    icon: HeadingSolid,
     title: 'Heading',
     default: true,
+    shortcut: 'Cmd-H',
   },
   'heading-smaller': {
     name: 'heading-smaller',
     action: toggleHeadingSmaller,
-    icon: 'fa fa-header fa-header-x fa-header-smaller',
     title: 'Smaller Heading',
   },
   'heading-bigger': {
     name: 'heading-bigger',
     action: toggleHeadingBigger,
-    icon: 'fa fa-header fa-header-x fa-header-bigger',
     title: 'Bigger Heading',
   },
   'heading-1': {
     name: 'heading-1',
     action: toggleHeading1,
-    icon: 'fa fa-header fa-header-x fa-header-1',
     title: 'Big Heading',
   },
   'heading-2': {
     name: 'heading-2',
     action: toggleHeading2,
-    icon: 'fa fa-header fa-header-x fa-header-2',
     title: 'Medium Heading',
   },
   'heading-3': {
     name: 'heading-3',
     action: toggleHeading3,
-    icon: 'fa fa-header fa-header-x fa-header-3',
     title: 'Small Heading',
   },
   'separator-1': {
@@ -844,34 +860,37 @@ export const toolbarBuiltInButtons = {
   code: {
     name: 'code',
     action: toggleCodeBlock,
-    icon: 'fa fa-code',
+    icon: CodeSolid,
     title: 'Code',
+    shortcut: 'Cmd-`',
   },
   quote: {
     name: 'quote',
     action: toggleBlockquote,
-    icon: 'fa fa-quote-left',
+    icon: QuoteLeftSolid,
     title: 'Quote',
     default: true,
+    shortcut: 'Cmd->',
   },
   'unordered-list': {
     name: 'unordered-list',
     action: toggleUnorderedList,
-    icon: 'fa fa-list-ul',
+    icon: ListUlSolid,
     title: 'Generic List',
     default: true,
+    shortcut: 'Cmd-L',
   },
   'ordered-list': {
     name: 'ordered-list',
     action: toggleOrderedList,
-    icon: 'fa fa-list-ol',
+    icon: ListOlSolid,
     title: 'Numbered List',
     default: true,
+    shortcut: 'Cmd-Alt-L',
   },
   'clean-block': {
     name: 'clean-block',
     action: cleanBlock,
-    icon: 'fa fa-eraser fa-clean-block',
     title: 'Clean block',
   },
   'separator-2': {
@@ -880,27 +899,28 @@ export const toolbarBuiltInButtons = {
   link: {
     name: 'link',
     action: drawLink,
-    icon: 'fa fa-link',
+    icon: LinkSolid,
     title: 'Create Link',
     default: true,
+    shortcut: 'Cmd-K',
   },
   image: {
     name: 'image',
     action: drawImage,
-    icon: 'fa fa-picture-o',
+    icon: ImageRegular,
     title: 'Insert Image',
     default: true,
+    shortcut: 'Cmd-Alt-I',
   },
   table: {
     name: 'table',
     action: drawTable,
-    icon: 'fa fa-table',
+    icon: TableSolid,
     title: 'Insert Table',
   },
   'horizontal-rule': {
     name: 'horizontal-rule',
     action: drawHorizontalRule,
-    icon: 'fa fa-minus',
     title: 'Insert Horizontal Line',
   },
   'separator-3': {
@@ -909,33 +929,29 @@ export const toolbarBuiltInButtons = {
   preview: {
     name: 'preview',
     action: togglePreview,
-    icon: 'fa fa-eye no-disable',
+    icon: GlassesSolid,
     title: 'Toggle Preview',
     default: true,
+    shortcut: 'Cmd-P',
   },
   'side-by-side': {
     name: 'side-by-side',
     action: toggleSideBySide,
-    icon: 'fa fa-columns no-disable no-mobile',
+    icon: ColumnsSolid,
     title: 'Toggle Side by Side',
     default: true,
+    shortcut: 'F9',
   },
   fullscreen: {
     name: 'fullscreen',
     action: toggleFullScreen,
-    icon: 'fa fa-arrows-alt no-disable no-mobile',
+    icon: ExpandArrowsAltSolid,
     title: 'Toggle Fullscreen',
     default: true,
+    shortcut: 'F11',
   },
   'separator-4': {
     name: 'separator-4',
-  },
-  guide: {
-    name: 'guide',
-    action: 'https://simplemde.com/markdown-guide',
-    icon: 'fa fa-question-circle',
-    title: 'Markdown Guide',
-    default: true,
   },
   'separator-5': {
     name: 'separator-5',
@@ -943,13 +959,13 @@ export const toolbarBuiltInButtons = {
   undo: {
     name: 'undo',
     action: undo,
-    icon: 'fa fa-undo no-disable',
+    icon: UndoSolid,
     title: 'Undo',
   },
   redo: {
     name: 'redo',
     action: redo,
-    icon: 'fa fa-repeat no-disable',
+    icon: RedoSolid,
     title: 'Redo',
   },
 };

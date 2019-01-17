@@ -4,6 +4,7 @@
   "description": "Custom markdown editor for Nooket",
   "main": "lib/index.js",
   "scripts": {
+    "svg": "npx @svgr/cli -d ./src/svg ./src/svg",
     "build": "npm rm -rf ./lib && tsc",
     "storybook": "start-storybook -p 6006",
     "prepare": "npm run build",
@@ -30,6 +31,7 @@
     "@storybook/addon-links": "^4.0.4",
     "@storybook/addons": "^4.0.4",
     "@storybook/react": "^4.0.4",
+    "@svgr/cli": "^4.1.0",
     "@types/codemirror": "0.0.71",
     "@types/react": "^16.7.2",
     "@types/react-dom": "^16.0.9",

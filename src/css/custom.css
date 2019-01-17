@@ -2,7 +2,7 @@
   height: auto;
   min-height: 150px;
   height: auto;
-  padding: 5px;
+  padding: 0px 5px 5px 5px;
   font: inherit;
   z-index: 1;
   font-size: 16px;
@@ -170,7 +170,7 @@
   display: inline-block;
   text-align: center;
   text-decoration: none !important;
-  color: #2c3e50 !important;
+  color: #959694 !important;
   width: 30px;
   height: 30px;
   margin: 0 2px 2px 0;
@@ -185,6 +185,7 @@
 .editor-toolbar a:hover {
   background: #fcfcfc;
   border-color: #95a5a6;
+  color: #2c3e50 !important;
 }
 
 .editor-toolbar a:before {
@@ -251,12 +252,20 @@
   text-align: right;
   margin: 2px;
   border-top: 1px solid #d9d9d9;
+  opacity: 0.8;
 }
 
-.editor-statusbar span {
+.editor-statusbar span,
+.editor-statusbar .mode {
   display: inline-block;
   min-width: 4em;
   margin-left: 1em;
+}
+
+.editor-statusbar a,
+.mode-menu li {
+  font-size: 12px;
+  color: #959694;
 }
 
 .editor-statusbar .lines:before {

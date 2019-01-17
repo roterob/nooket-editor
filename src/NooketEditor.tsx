@@ -1,8 +1,14 @@
 import * as React from 'react';
 import classNames from 'classnames';
-import { Icon } from 'antd';
+import { Icon, Dropdown, Menu } from 'antd';
 import { UnControlled as CodeMirrorWrap, IInstance } from './CodeMirrorWrap';
-import { wordCount, getState, toolbarBuiltInButtons } from './util';
+import * as memoize from 'memoize-one';
+import {
+  wordCount,
+  getState,
+  toolbarBuiltInButtons,
+  fixShortcut,
+} from './util';
 import { EnumToolbarButtons } from './types';
 
 import './css/custom.css';
@@ -54,15 +60,22 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     this.setState({ focusOnEditor });
 
   private handleEditorChange = (editor, data, value) => {
-    const newState = {
-      lines: this.editor.lineCount(),
-      words: wordCount(value),
-    };
+    const { showStatusbar } = this.props;
 
-    this.setState(newState);
+    if (showStatusbar) {
+      const newState = {
+        lines: this.editor.lineCount(),
+        words: wordCount(value),
+      };
+
+      this.setState(newState);
+    }
   };
 
   private handleCursorActivity = () => {
+    const { showToolbar } = this.props;
+    if (!showToolbar) return;
+
     const pos = this.editor.getCursor();
     const stat = getState(this.editor, pos);
 
@@ -81,17 +94,21 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
         </i>
       );
     } else if (buttonDefinition) {
-      const { name, title, icon, action } = buttonDefinition;
+      const { name, title, icon, action, shortcut } = buttonDefinition;
       const { stat } = this.state;
 
       return (
         <a
           key={name}
-          title={title}
+          title={`${title} (${fixShortcut(shortcut)})`}
           onClick={() => action(this.editor)}
           className={classNames({ active: stat[name] })}
         >
-          <Icon type={icon} />
+          {typeof icon === 'string' ? (
+            <Icon type={icon} />
+          ) : (
+            <Icon component={icon} />
+          )}
         </a>
       );
     }
@@ -109,12 +126,41 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     );
   };
 
+  private getShortcuts = memoize(() => {
+    const { toolbar } = this.props;
+
+    const keymappings = {};
+    toolbar.forEach(b => {
+      const buttonDefinition = toolbarBuiltInButtons[b];
+      if (buttonDefinition && buttonDefinition.shortcut) {
+        keymappings[fixShortcut(buttonDefinition.shortcut)] = () => {
+          buttonDefinition.action(this.editor);
+        };
+      }
+    });
+    return keymappings;
+  });
+
   private getFooter = () => {
     const { showStatusbar } = this.props;
     const { lines, words, cursor } = this.state;
     return (
       showStatusbar && (
         <div className="editor-statusbar">
+          <div className="mode">
+            <Dropdown
+              overlay={
+                <Menu className="mode-menu">
+                  <Menu.Item key="0">Normal mode</Menu.Item>
+                  <Menu.Item key="1">Vim mode</Menu.Item>
+                </Menu>
+              }
+            >
+              <span style={{ userSelect: 'none', cursor: 'pointer' }}>
+                Vim mode <Icon type="down" />
+              </span>
+            </Dropdown>
+          </div>
           <span className="autosave" />
           <span className="lines">{lines}</span>
           <span className="words">{words}</span>
@@ -144,6 +190,8 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
             autoCloseBrackets: true,
             viewportMargin: Infinity,
             placeholder: 'Write something interesting here',
+            lineWrapping: true,
+            extraKeys: this.getShortcuts(),
           }}
           onChange={this.handleEditorChange}
           editorDidMount={this.handleEditorMounted}
