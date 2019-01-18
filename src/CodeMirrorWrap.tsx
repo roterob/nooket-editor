@@ -14,7 +14,10 @@ import 'codemirror/addon/mode/overlay.js';
 import 'codemirror/mode/clike/clike.js';
 import 'codemirror/mode/markdown/markdown.js';
 import 'codemirror/mode/gfm/gfm.js';
+import 'codemirror/mode/xml/xml.js';
 import 'codemirror/keymap/vim.js';
+import 'codemirror/addon/edit/continuelist.js';
+import 'codemirror/addon/display/fullscreen.js';
 
 declare let global: any;
 declare let require: any;
@@ -55,8 +58,15 @@ export interface IDoc extends codemirror.Doc {
   setSelections: (ranges: Array<ISetSelectionOptions>) => void;
 }
 
+export interface CustomEditorConfiguration
+  extends codemirror.EditorConfiguration {
+  backdrop?: any;
+  matchBrackets?: boolean;
+  autoCloseBrackets?: boolean;
+}
+
 export interface IInstance extends codemirror.Editor, IDoc {
-  options: codemirror.EditorConfiguration;
+  options: CustomEditorConfiguration;
 }
 
 /* </tshacks> */
@@ -72,7 +82,12 @@ export interface ICodeMirror {
   cursor?: codemirror.Position;
   defineMode?: IDefineModeOptions;
   editorDidConfigure?: (editor: IInstance) => void;
-  editorDidMount?: (editor: IInstance, value: string, cb: () => void) => void;
+  editorDidMount?: (
+    editor: IInstance,
+    value: string,
+    cb: () => void,
+    codemirror?: any
+  ) => void;
   editorWillMount?: () => void;
   editorWillUnmount?: (lib: any) => void;
   onBlur?: DomEvent;
@@ -114,7 +129,7 @@ export interface ICodeMirror {
   onTouchStart?: DomEvent;
   onUpdate?: (editor: IInstance) => void;
   onViewportChange?: (editor: IInstance, start: number, end: number) => void;
-  options?: codemirror.EditorConfiguration;
+  options?: CustomEditorConfiguration;
   selection?: { ranges: Array<ISetSelectionOptions>; focus?: boolean };
   scroll?: ISetScrollOptions;
 }
@@ -570,7 +585,7 @@ export class UnControlled extends React.Component<
       }
     }
 
-    this.editor = cm(this.ref) as IInstance;
+    this.editor = cm.fromTextArea(this.ref as HTMLTextAreaElement) as IInstance;
 
     this.shared = new Shared(this.editor, this.props);
 
@@ -615,7 +630,8 @@ export class UnControlled extends React.Component<
       this.props.editorDidMount(
         this.editor,
         this.editor.getValue(),
-        this.initCb
+        this.initCb,
+        codemirror
       );
     }
   }
@@ -653,10 +669,6 @@ export class UnControlled extends React.Component<
     console.log('Render');
     if (SERVER_RENDERED) return null;
 
-    let className = this.props.className
-      ? `react-codemirror ${this.props.className}`
-      : 'react-codemirror';
-
-    return <div className={className} ref={self => (this.ref = self)} />;
+    return <textarea ref={self => (this.ref = self)} />;
   }
 }

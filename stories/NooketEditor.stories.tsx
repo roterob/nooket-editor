@@ -13,8 +13,13 @@ const Container = styled.div`
   margin: 10px;
 `;
 
+const actionWithReturn = (name, returnValue) => (...args) => {
+  action(name)(...args);
+  return returnValue;
+};
+
 storiesOf('NooketDoc', module).add('default', () => (
   <Container>
-    <NooketEditor />
+    <NooketEditor onToolbarAction={actionWithReturn('onToolbarAction', true)} />
   </Container>
 ));

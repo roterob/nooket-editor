@@ -785,15 +785,7 @@ export function redo(editor) {
   cm.focus();
 }
 
-export function togglePreview() {
-  alert('Pending');
-}
-
-export function toggleSideBySide() {
-  alert('Pending');
-}
-
-export function toggleFullScreen() {
+export function togglePreview(editor) {
   alert('Pending');
 }
 
@@ -928,7 +920,7 @@ export const toolbarBuiltInButtons = {
   },
   preview: {
     name: 'preview',
-    action: togglePreview,
+    action: null,
     icon: GlassesSolid,
     title: 'Toggle Preview',
     default: true,
@@ -936,7 +928,7 @@ export const toolbarBuiltInButtons = {
   },
   'side-by-side': {
     name: 'side-by-side',
-    action: toggleSideBySide,
+    action: null,
     icon: ColumnsSolid,
     title: 'Toggle Side by Side',
     default: true,
@@ -944,7 +936,7 @@ export const toolbarBuiltInButtons = {
   },
   fullscreen: {
     name: 'fullscreen',
-    action: toggleFullScreen,
+    action: null,
     icon: ExpandArrowsAltSolid,
     title: 'Toggle Fullscreen',
     default: true,

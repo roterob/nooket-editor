@@ -1,3 +1,25 @@
+.editor-container {
+  border: 1px solid #e8e8e8;
+  border-radius: 2px;
+}
+
+.editor-container.focus:not(.fullscreen) {
+  border-color: #40a9ff;
+  outline: 0;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  border-right-width: 1px !important;
+}
+
+.editor-container.fullscreen {
+  position: fixed !important;
+  top: 0px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: auto;
+  z-index: 9;
+}
+
 .CodeMirror {
   height: auto;
   min-height: 150px;
@@ -9,6 +31,10 @@
   margin: 0 2px;
 }
 
+.editor-container.fullscreen .CodeMirror {
+  height: calc(100vh - 35px - 40px);
+}
+
 .CodeMirror.CodeMirror-empty {
   font-style: italic;
 }
@@ -17,18 +43,7 @@
   min-height: 150px;
 }
 
-.CodeMirror-fullscreen {
-  background: #fff;
-  position: fixed !important;
-  top: 50px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: auto;
-  z-index: 9;
-}
-
-.CodeMirror-sided {
+.sided .CodeMirror {
   width: 50% !important;
 }
 .CodeMirror-dialog.CodeMirror-dialog-bottom {
@@ -152,18 +167,6 @@
   right: 0;
   margin: 0;
   padding: 0;
-}
-
-.editor-container {
-  border: 1px solid #e8e8e8;
-  border-radius: 2px;
-}
-
-.editor-container.focus {
-  border-color: #40a9ff;
-  outline: 0;
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
-  border-right-width: 1px !important;
 }
 
 .editor-toolbar a {
@@ -295,11 +298,10 @@
 }
 
 .editor-preview-side {
-  padding: 10px;
   position: fixed;
-  bottom: 0;
+  bottom: 35px;
   width: 50%;
-  top: 50px;
+  top: 35px;
   right: 0;
   background: #fafafa;
   z-index: 9;
@@ -402,4 +404,9 @@
 
 .CodeMirror .CodeMirror-placeholder {
   opacity: 0.5;
+}
+
+.CodeMirror
+  .cm-spell-error:not(.cm-url):not(.cm-comment):not(.cm-tag):not(.cm-word) {
+  background: rgba(255, 0, 0, 0.15);
 }
