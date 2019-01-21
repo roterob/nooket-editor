@@ -9,14 +9,24 @@ import {
   toolbarBuiltInButtons,
   fixShortcut,
 } from './util';
+import getHtmlRender from './render';
 import { EnumToolbarButtons } from './types';
 
 import './css/custom.css';
+import './css/markdown.css';
+import 'highlight.js/styles/solarized-light.css';
 import { any } from 'prop-types';
 
 export enum EnumEditorMode {
   Vim = 'Vim',
   Normal = 'Normal',
+}
+
+export enum EnumViewMode {
+  Normal = 'Normal',
+  SideBySide = 'SideBySide',
+  Fullscreen = 'Fullscreen',
+  Preview = 'Preview',
 }
 
 export type NooketEditorProps = {
@@ -25,7 +35,10 @@ export type NooketEditorProps = {
   spellChecker?: boolean;
   toolbar?: EnumToolbarButtons[];
   mode?: EnumEditorMode;
-  onToolbarAction?: (IInstance) => any;
+  viewMode?: EnumViewMode;
+  value?: string;
+  onToolbarAction?: (IInstance, string) => any;
+  onChange?: (string) => void;
 };
 
 class NooketEditor extends React.Component<NooketEditorProps, any> {
@@ -34,7 +47,10 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     showStatusbar: true,
     spellChecker: false,
     mode: EnumEditorMode.Vim,
-    onToolbarAction: editor => true,
+    viewMode: EnumViewMode.Normal,
+    value: '',
+    onToolbarAction: (editor, actionName) => true,
+    onChange: _ => {},
     toolbar: [
       EnumToolbarButtons.bold,
       EnumToolbarButtons.italic,
@@ -68,6 +84,13 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   CodeMirror: any = null;
   numSep: number = 0;
   savedOverflow: any = null;
+  renderHtml: any = getHtmlRender();
+
+  public componentDidMount() {
+    const { value } = this.props;
+    console.log(value);
+    this.editor.setValue(this.props.value);
+  }
 
   public componentDidUpdate() {
     const { isFullscreen } = this.state;
@@ -95,7 +118,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     this.setState({ focusOnEditor });
 
   private handleEditorChange = (editor, data, value) => {
-    const { showStatusbar } = this.props;
+    const { showStatusbar, onChange } = this.props;
 
     if (showStatusbar) {
       const newState = {
@@ -105,6 +128,8 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
 
       this.setState(newState);
     }
+
+    onChange(value);
   };
 
   private handleFullscreen = () => {
@@ -128,7 +153,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   private handleToolbarAction = (actionName, defaultAction) => {
     const { onToolbarAction } = this.props;
 
-    const res = onToolbarAction(this.editor);
+    const res = onToolbarAction(this.editor, actionName);
 
     if (res) {
       if (actionName === 'fullscreen') {
@@ -288,6 +313,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   public render() {
     const { focusOnEditor, isFullscreen, isSideBySide } = this.state;
     const { mode, backdrop, keyMap } = this.getModeConfig();
+    const { value } = this.props;
 
     return (
       <div
@@ -301,7 +327,6 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       >
         {this.getToolbar()}
         <CodeMirrorWrap
-          value=""
           options={{
             mode,
             backdrop,
@@ -319,11 +344,15 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
           editorDidMount={this.handleEditorMounted}
           onCursorActivity={this.handleCursorActivity}
         />
-        <div
-          className={classNames('editor-preview-side', {
-            'editor-preview-active-side': isSideBySide,
-          })}
-        />
+        {isSideBySide && (
+          <div
+            className={classNames('editor-preview-side', 'markdown-body', {
+              'editor-preview-active-side': isSideBySide,
+            })}
+          >
+            {this.renderHtml(this.editor.getValue())}
+          </div>
+        )}
         {this.getFooter()}
       </div>
     );

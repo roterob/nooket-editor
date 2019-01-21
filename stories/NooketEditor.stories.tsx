@@ -5,7 +5,7 @@ import { action } from '@storybook/addon-actions';
 import { storiesOf } from '@storybook/react';
 
 import NooketEditor from '../src/NooketEditor';
-import { UnControlled as CodeMirror } from '../src/CodeMirrorWrap';
+import { complexText } from './test-data';
 
 import 'antd/dist/antd.css';
 
@@ -18,8 +18,20 @@ const actionWithReturn = (name, returnValue) => (...args) => {
   return returnValue;
 };
 
-storiesOf('NooketDoc', module).add('default', () => (
-  <Container>
-    <NooketEditor onToolbarAction={actionWithReturn('onToolbarAction', true)} />
-  </Container>
-));
+storiesOf('NooketDoc', module)
+  .add('default', () => (
+    <Container>
+      <NooketEditor
+        onToolbarAction={actionWithReturn('onToolbarAction', true)}
+        onChange={action('onChange')}
+      />
+    </Container>
+  ))
+  .add('withValue', () => (
+    <Container>
+      <NooketEditor
+        value={complexText}
+        onToolbarAction={actionWithReturn('onToolbarAction', true)}
+      />
+    </Container>
+  ));

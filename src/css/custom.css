@@ -298,6 +298,7 @@
 }
 
 .editor-preview-side {
+  padding: 10px;
   position: fixed;
   bottom: 35px;
   width: 50%;
