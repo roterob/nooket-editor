@@ -2,7 +2,7 @@ import * as Remarkable from 'remarkable';
 import * as hl from 'highlight.js';
 import * as renderHtml from 'react-render-html';
 
-export default function getHtmlRender() {
+export default function getHtmlRender(): (string, bool) => any {
   const defaults = {
     html: false, // Enable HTML tags in source
     xhtmlOut: false, // Use '/' to close single tags (<br />)
@@ -55,8 +55,8 @@ export default function getHtmlRender() {
     return '<h' + tokens[idx].hLevel + '>';
   };
 
-  return function(src) {
+  return function(src, asReactDOM = true) {
     const plainHtml = mdHtml.render(src);
-    return renderHtml(plainHtml); //Render html as a React DOM object
+    return asReactDOM ? renderHtml(plainHtml) : plainHtml;
   };
 }

@@ -70,6 +70,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   };
 
   state = {
+    value: this.props.value,
     isFullscreen: false,
     isSideBySide: false,
     isPreview: false,
@@ -78,6 +79,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     words: 0,
     cursor: '0:0',
     stat: {},
+    prevViewMode: null,
   };
 
   editor: IInstance = null;
@@ -86,10 +88,20 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   savedOverflow: any = null;
   renderHtml: any = getHtmlRender();
 
-  public componentDidMount() {
-    const { value } = this.props;
-    console.log(value);
-    this.editor.setValue(this.props.value);
+  static getDerivedStateFromProps(nextProps, state) {
+    const { viewMode } = nextProps;
+    const newState = { ...state };
+
+    if (!state.prevViewMode || viewMode !== state.prevViewMode) {
+      newState.isFullscreen =
+        viewMode === EnumViewMode.Fullscreen ||
+        viewMode === EnumViewMode.SideBySide;
+      newState.isPreview = viewMode === EnumViewMode.Preview;
+      newState.isSideBySide = viewMode === EnumViewMode.SideBySide;
+      newState.prevViewMode = viewMode;
+    }
+
+    return newState;
   }
 
   public componentDidUpdate() {
@@ -120,15 +132,17 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   private handleEditorChange = (editor, data, value) => {
     const { showStatusbar, onChange } = this.props;
 
+    let newState: any = { value };
+
     if (showStatusbar) {
-      const newState = {
+      newState = {
         lines: this.editor.lineCount(),
         words: wordCount(value),
+        ...newState,
       };
-
-      this.setState(newState);
     }
 
+    this.setState(newState);
     onChange(value);
   };
 
@@ -311,9 +325,8 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   };
 
   public render() {
-    const { focusOnEditor, isFullscreen, isSideBySide } = this.state;
+    const { focusOnEditor, isFullscreen, isSideBySide, value } = this.state;
     const { mode, backdrop, keyMap } = this.getModeConfig();
-    const { value } = this.props;
 
     return (
       <div
@@ -327,6 +340,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       >
         {this.getToolbar()}
         <CodeMirrorWrap
+          value={value}
           options={{
             mode,
             backdrop,
@@ -350,7 +364,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
               'editor-preview-active-side': isSideBySide,
             })}
           >
-            {this.renderHtml(this.editor.getValue())}
+            {this.renderHtml(value)}
           </div>
         )}
         {this.getFooter()}

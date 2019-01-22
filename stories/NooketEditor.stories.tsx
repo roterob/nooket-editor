@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { action } from '@storybook/addon-actions';
 import { storiesOf } from '@storybook/react';
 
-import NooketEditor from '../src/NooketEditor';
+import NooketEditor, { EnumViewMode } from '../src/NooketEditor';
 import { complexText } from './test-data';
 
 import 'antd/dist/antd.css';
@@ -31,6 +31,15 @@ storiesOf('NooketDoc', module)
     <Container>
       <NooketEditor
         value={complexText}
+        onToolbarAction={actionWithReturn('onToolbarAction', true)}
+      />
+    </Container>
+  ))
+  .add('sideBySide', () => (
+    <Container>
+      <NooketEditor
+        value={complexText}
+        viewMode={EnumViewMode.SideBySide}
         onToolbarAction={actionWithReturn('onToolbarAction', true)}
       />
     </Container>
