@@ -2,7 +2,7 @@ import * as Remarkable from 'remarkable';
 import * as hl from 'highlight.js';
 import * as renderHtml from 'react-render-html';
 
-export default function getHtmlRender(): (string, bool) => any {
+export default function createHtmlRender(): (string, bool) => any {
   const defaults = {
     html: false, // Enable HTML tags in source
     xhtmlOut: false, // Use '/' to close single tags (<br />)

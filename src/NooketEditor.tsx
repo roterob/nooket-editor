@@ -9,7 +9,8 @@ import {
   toolbarBuiltInButtons,
   fixShortcut,
 } from './util';
-import getHtmlRender from './render';
+import createHtmlRender from './render';
+import createScrollSync from './createScrollSync';
 import { EnumToolbarButtons } from './types';
 
 import './css/custom.css';
@@ -37,6 +38,7 @@ export type NooketEditorProps = {
   mode?: EnumEditorMode;
   viewMode?: EnumViewMode;
   value?: string;
+  placeholder?: string;
   onToolbarAction?: (IInstance, string) => any;
   onChange?: (string) => void;
 };
@@ -49,6 +51,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     mode: EnumEditorMode.Vim,
     viewMode: EnumViewMode.Normal,
     value: '',
+    placeholder: '',
     onToolbarAction: (editor, actionName) => true,
     onChange: _ => {},
     toolbar: [
@@ -86,7 +89,9 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   CodeMirror: any = null;
   numSep: number = 0;
   savedOverflow: any = null;
-  renderHtml: any = getHtmlRender();
+  renderHtml: any = createHtmlRender();
+  scrollSync: any = null;
+  sideBySideRef: any = React.createRef();
 
   static getDerivedStateFromProps(nextProps, state) {
     const { viewMode } = nextProps;
@@ -104,20 +109,49 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     return newState;
   }
 
+  public componentDidMount() {
+    const { isSideBySide, value } = this.state;
+
+    this.editor.setValue(value);
+
+    const sourcePanel = this.editor
+      .getWrapperElement()
+      .querySelector('.CodeMirror-scroll') as HTMLElement;
+    const previewPanel = this.sideBySideRef.current;
+
+    this.scrollSync = createScrollSync(sourcePanel, previewPanel);
+
+    if (isSideBySide) {
+      this.scrollSync.on();
+    } else {
+      this.scrollSync.off();
+    }
+  }
+
+  public componentWillUnmount() {
+    this.scrollSync.off();
+  }
+
   public componentDidUpdate() {
-    const { isFullscreen } = this.state;
+    const { isFullscreen, isSideBySide } = this.state;
 
     // Prevent scrolling on body during fullscreen active
     if (isFullscreen) {
       if (this.savedOverflow == null) {
         this.savedOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
-        this.editor.setOption('viewportMargin', 10);
+        this.editor.setOption('viewportMargin', 500);
       }
     } else {
       document.body.style.overflow = this.savedOverflow;
       this.savedOverflow = null;
       this.editor.setOption('viewportMargin', Infinity);
+    }
+
+    if (isSideBySide) {
+      this.scrollSync.on();
+    } else {
+      this.scrollSync.off();
     }
   }
 
@@ -180,7 +214,8 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     }
   };
 
-  private handleESC = cm => {
+  private handleESC = (cm, e) => {
+    console.log(e);
     const { mode } = this.props;
     const { isFullscreen } = this.state;
 
@@ -204,6 +239,11 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
 
     this.setState({ cursor: `${pos.line + 1}:${pos.ch + 1}`, stat });
   };
+
+  private handleRenderLine(cm, line, elt) {
+    const lineInfo = cm.lineInfo(line);
+    elt.setAttribute('data-line', lineInfo.line);
+  }
 
   private getToolbarButton = buttonName => {
     const buttonDefinition = toolbarBuiltInButtons[buttonName];
@@ -327,6 +367,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   public render() {
     const { focusOnEditor, isFullscreen, isSideBySide, value } = this.state;
     const { mode, backdrop, keyMap } = this.getModeConfig();
+    const { placeholder } = this.props;
 
     return (
       <div
@@ -340,7 +381,6 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       >
         {this.getToolbar()}
         <CodeMirrorWrap
-          value={value}
           options={{
             mode,
             backdrop,
@@ -350,16 +390,18 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
             matchBrackets: true,
             autoCloseBrackets: true,
             viewportMargin: Infinity,
-            placeholder: 'Write something interesting here',
+            placeholder,
             lineWrapping: true,
             extraKeys: this.getShortcuts(),
           }}
           onChange={this.handleEditorChange}
           editorDidMount={this.handleEditorMounted}
           onCursorActivity={this.handleCursorActivity}
+          onRenderLine={this.handleRenderLine}
         />
         {isSideBySide && (
           <div
+            ref={this.sideBySideRef}
             className={classNames('editor-preview-side', 'markdown-body', {
               'editor-preview-active-side': isSideBySide,
             })}

@@ -5,7 +5,7 @@ import { action } from '@storybook/addon-actions';
 import { storiesOf } from '@storybook/react';
 
 import NooketEditor, { EnumViewMode } from '../src/NooketEditor';
-import { complexText } from './test-data';
+import { complexText, imagesText } from './test-data';
 
 import 'antd/dist/antd.css';
 
@@ -22,6 +22,7 @@ storiesOf('NooketDoc', module)
   .add('default', () => (
     <Container>
       <NooketEditor
+        placeholder="Write something interesting here"
         onToolbarAction={actionWithReturn('onToolbarAction', true)}
         onChange={action('onChange')}
       />
