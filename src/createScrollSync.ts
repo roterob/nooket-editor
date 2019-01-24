@@ -1,7 +1,14 @@
 import * as debounce from 'lodash.debounce';
 
+function removeLineInfo(container) {
+  container
+    .querySelectorAll('.editor-line-debug')
+    .forEach(e => container.removeChild(e));
+}
+
 function showLineInfo(container, lineNumber, offset) {
   const box = document.createElement('div');
+  box.className = 'editor-line-debug';
   box.style.position = 'absolute';
   box.style.top = `${offset}px`;
   box.style.left = '0';
@@ -19,6 +26,8 @@ function showLineInfo(container, lineNumber, offset) {
 function buildScrollMap(
   container: HTMLElement,
   selector: string,
+  useDataLineAttr: boolean,
+  bias: number,
   linesToTrack?: number[]
 ): any {
   const res = {};
@@ -31,13 +40,21 @@ function buildScrollMap(
     offset: container.scrollHeight,
   };
 
-  lines.forEach(l => {
-    const lineNumber = parseInt(l.getAttribute('data-line'), 10);
+  //removeLineInfo(container.querySelector('.CodeMirror-code') || container);
+
+  const scrollTop = container.scrollTop;
+  lines.forEach((l, i) => {
+    const lineNumber = useDataLineAttr
+      ? parseInt(l.getAttribute('data-line'), 10)
+      : i;
     if (!linesToTrack || linesToTrack.indexOf(lineNumber) >= 0) {
       const rect = l.getBoundingClientRect();
-      res[lineNumber] = { line: lineNumber, offset: rect.top - 25 };
+      res[lineNumber] = {
+        line: lineNumber,
+        offset: scrollTop + rect.top + bias,
+      };
 
-      // showLineInfo(l.parentElement, lineNumber, rect.top - rect.height);
+      //showLineInfo(l.parentElement, lineNumber, res[lineNumber].offset);
     }
   });
 
@@ -82,15 +99,20 @@ export default function createScrollSync(
     prvScroll = false;
   let prvScrollMap = null,
     srcScrollMap = null;
+  let lastUpdate = null;
 
   const buildScrollMappings = function() {
-    prvScrollMap = buildScrollMap(preview, '.line');
+    prvScrollMap = buildScrollMap(preview, '.line', true, -25);
     srcScrollMap = buildScrollMap(
       source,
       '.CodeMirror-line',
+      false,
+      -25,
       Object.keys(prvScrollMap).map(l => parseInt(l, 10))
     );
   };
+
+  const buildScrollMappingsDebounced = debounce(buildScrollMappings, 1000);
 
   const updatePreviewScroll = debounce(
     function() {
@@ -126,12 +148,16 @@ export default function createScrollSync(
     { maxWait: 100 }
   );
 
-  const on = function() {
+  const on = function(timestamp) {
     if (!isActive) {
       buildScrollMappings();
       source.addEventListener('scroll', updatePreviewScroll);
       preview.addEventListener('scroll', updateSourceScroll);
       isActive = true;
+      lastUpdate = timestamp;
+    } else if (lastUpdate !== timestamp) {
+      lastUpdate = timestamp;
+      buildScrollMappingsDebounced();
     }
   };
   const off = function() {
@@ -145,7 +171,6 @@ export default function createScrollSync(
   return {
     on,
     off,
-    rebuildScrollMapping: debounce(buildScrollMappings, 100),
     isActive: function() {
       return isActive;
     },

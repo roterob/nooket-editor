@@ -312,6 +312,8 @@
   display: none;
   box-sizing: border-box;
   border: 1px solid #ddd;
+  border-top-width: 0px;
+  padding-top: 2px;
 }
 
 .editor-preview-active-side {

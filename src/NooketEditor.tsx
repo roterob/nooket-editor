@@ -83,6 +83,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     cursor: '0:0',
     stat: {},
     prevViewMode: null,
+    lastUpdate: new Date().getTime(),
   };
 
   editor: IInstance = null;
@@ -121,11 +122,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
 
     this.scrollSync = createScrollSync(sourcePanel, previewPanel);
 
-    if (isSideBySide) {
-      this.scrollSync.on();
-    } else {
-      this.scrollSync.off();
-    }
+    this.applySideEffects();
   }
 
   public componentWillUnmount() {
@@ -133,7 +130,11 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   }
 
   public componentDidUpdate() {
-    const { isFullscreen, isSideBySide } = this.state;
+    this.applySideEffects();
+  }
+
+  private applySideEffects() {
+    const { isFullscreen, isSideBySide, lastUpdate } = this.state;
 
     // Prevent scrolling on body during fullscreen active
     if (isFullscreen) {
@@ -149,7 +150,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     }
 
     if (isSideBySide) {
-      this.scrollSync.on();
+      this.scrollSync.on(lastUpdate);
     } else {
       this.scrollSync.off();
     }
@@ -166,7 +167,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   private handleEditorChange = (editor, data, value) => {
     const { showStatusbar, onChange } = this.props;
 
-    let newState: any = { value };
+    let newState: any = { value, lastUpdate: new Date().getTime() };
 
     if (showStatusbar) {
       newState = {
@@ -215,7 +216,6 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   };
 
   private handleESC = (cm, e) => {
-    console.log(e);
     const { mode } = this.props;
     const { isFullscreen } = this.state;
 
@@ -399,16 +399,14 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
           onCursorActivity={this.handleCursorActivity}
           onRenderLine={this.handleRenderLine}
         />
-        {isSideBySide && (
-          <div
-            ref={this.sideBySideRef}
-            className={classNames('editor-preview-side', 'markdown-body', {
-              'editor-preview-active-side': isSideBySide,
-            })}
-          >
-            {this.renderHtml(value)}
-          </div>
-        )}
+        <div
+          ref={this.sideBySideRef}
+          className={classNames('editor-preview-side', 'markdown-body', {
+            'editor-preview-active-side': isSideBySide,
+          })}
+        >
+          {isSideBySide && this.renderHtml(value)}
+        </div>
         {this.getFooter()}
       </div>
     );
