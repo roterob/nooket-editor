@@ -7,7 +7,7 @@ import NooketEditor from '../src/NooketEditor';
 import { UnControlled as CodeMirror } from '../src/CodeMirrorWrap';
 
 import 'antd/dist/antd.css';
-import '../src/css/custom.css';
+import '../src/css/editor.css';
 
 const testValue = ` GitHub Flavored Markdown
 ---

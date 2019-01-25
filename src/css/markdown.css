@@ -698,3 +698,7 @@
 .markdown-body hr {
   border-bottom-color: #eee;
 }
+
+.markdown-body .katex-html {
+  display: none;
+}

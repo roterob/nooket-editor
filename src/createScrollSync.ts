@@ -27,7 +27,6 @@ function buildScrollMap(
   container: HTMLElement,
   selector: string,
   useDataLineAttr: boolean,
-  bias: number,
   linesToTrack?: number[]
 ): any {
   const res = {};
@@ -51,7 +50,7 @@ function buildScrollMap(
       const rect = l.getBoundingClientRect();
       res[lineNumber] = {
         line: lineNumber,
-        offset: scrollTop + rect.top + bias,
+        offset: scrollTop + rect.top - 25, // 25 es un factor de corrección
       };
 
       //showLineInfo(l.parentElement, lineNumber, res[lineNumber].offset);
@@ -102,12 +101,11 @@ export default function createScrollSync(
   let lastUpdate = null;
 
   const buildScrollMappings = function() {
-    prvScrollMap = buildScrollMap(preview, '.line', true, -25);
+    prvScrollMap = buildScrollMap(preview, '.line', true);
     srcScrollMap = buildScrollMap(
       source,
       '.CodeMirror-line',
       false,
-      -25,
       Object.keys(prvScrollMap).map(l => parseInt(l, 10))
     );
   };

@@ -13,11 +13,6 @@ import createHtmlRender from './render';
 import createScrollSync from './createScrollSync';
 import { EnumToolbarButtons } from './types';
 
-import './css/custom.css';
-import './css/markdown.css';
-import 'highlight.js/styles/solarized-light.css';
-import { any } from 'prop-types';
-
 export enum EnumEditorMode {
   Vim = 'Vim',
   Normal = 'Normal',
@@ -318,7 +313,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   private getModeConfig = () => {
     const { spellChecker, mode } = this.props;
     const res: any = {
-      mode: { name: 'gfm', allowAtxHeaderWithoutSpace: false },
+      mode: { name: 'cmd', allowAtxHeaderWithoutSpace: false },
       backdrop: null,
       keyMap: 'default',
     };

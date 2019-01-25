@@ -8,6 +8,9 @@ import NooketEditor, { EnumViewMode } from '../src/NooketEditor';
 import { complexText, imagesText } from './test-data';
 
 import 'antd/dist/antd.css';
+import '../src/css/editor.css';
+import '../src/css/markdown.css';
+import 'highlight.js/styles/solarized-light.css';
 
 const Container = styled.div`
   margin: 10px;

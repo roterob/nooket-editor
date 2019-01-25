@@ -13,11 +13,12 @@ import 'codemirror/addon/display/placeholder.js';
 import 'codemirror/addon/mode/overlay.js';
 import 'codemirror/mode/clike/clike.js';
 import 'codemirror/mode/markdown/markdown.js';
-import 'codemirror/mode/gfm/gfm.js';
 import 'codemirror/mode/xml/xml.js';
 import 'codemirror/keymap/vim.js';
 import 'codemirror/addon/edit/continuelist.js';
 import 'codemirror/addon/display/fullscreen.js';
+
+import './codemirror/cmd.js';
 
 declare let global: any;
 declare let require: any;

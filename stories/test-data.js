@@ -124,6 +124,18 @@ var foo = function (bar) {
 console.log(foo(5));
 \`\`\`
 
+## Katex
+
+This is a block
+
+$$
+f(x) = \\int_{-\\infty}^\\infty
+    \\hat f(\\xi)\\,e^{2 \\pi i \\xi x}
+    \\,d\\xi
+$$
+
+... and also inline $a^2=\\sqrt{b^2+c^2}$
+
 ## Tables
 
 | Option | Description |

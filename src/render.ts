@@ -1,5 +1,14 @@
-import * as Remarkable from 'remarkable';
-import * as hl from 'highlight.js';
+import * as MarkdownIt from 'markdown-it';
+import * as Container from 'markdown-it-container';
+import * as Deflist from 'markdown-it-deflist';
+import * as Ins from 'markdown-it-ins';
+import * as Mark from 'markdown-it-mark';
+import * as Sup from 'markdown-it-sup';
+import * as Sub from 'markdown-it-sub';
+import * as Footnote from 'markdown-it-footnote';
+import * as Emoji from 'markdown-it-emoji';
+import * as katex from 'markdown-it-katex';
+import * as hljs from 'highlight.js';
 import * as renderHtml from 'react-render-html';
 
 export default function createHtmlRender(): (string, bool) => any {
@@ -12,48 +21,63 @@ export default function createHtmlRender(): (string, bool) => any {
     linkTarget: '', // set target to open link in
     typographer: true, // Enable smartypants and other sweet transforms
     highlight: function(str, lang) {
-      if (lang && hl.getLanguage(lang)) {
-        try {
-          return hl.highlight(lang, str).value;
-        } catch (__) {}
-      }
+      var esc = mdHtml.utils.escapeHtml;
 
       try {
-        return hl.highlightAuto(str).value;
-      } catch (__) {}
+        if (lang && lang !== 'auto' && hljs.getLanguage(lang)) {
+          return (
+            '<pre class="hljs language-' +
+            esc(lang.toLowerCase()) +
+            '"><code>' +
+            hljs.highlight(lang, str, true).value +
+            '</code></pre>'
+          );
+        } else if (lang === 'auto') {
+          var result = hljs.highlightAuto(str);
 
-      return '';
+          return (
+            '<pre class="hljs language-' +
+            esc(result.language) +
+            '"><code>' +
+            result.value +
+            '</code></pre>'
+          );
+        }
+      } catch (__) {
+        /**/
+      }
+
+      return '<pre class="hljs"><code>' + esc(str) + '</code></pre>';
     },
   };
 
-  const mdHtml = new Remarkable('full', defaults);
+  const mdHtml = MarkdownIt(defaults)
+    .use(Container)
+    .use(Deflist)
+    .use(Ins)
+    .use(Mark)
+    .use(Sup)
+    .use(Sub)
+    .use(Footnote)
+    .use(Emoji)
+    .use(katex, { throwOnError: false, errorColor: ' #cc0000' });
 
   //
   // Inject line numbers for sync scroll. Notes:
   //
-  // - We track only headings and paragraphs on first level. That's enougth.
+  // - We track only headings and paragraphs on first level. That's enough.
   // - Footnotes content causes jumps. Level limit filter it automatically.
-  //
-
-  mdHtml.renderer.rules.paragraph_open = function(tokens, idx) {
+  function injectLineNumbers(tokens, idx, options, env, slf) {
     var line;
-    if (tokens[idx].lines && tokens[idx].level === 0) {
-      line = tokens[idx].lines[0];
-      return '<p class="line" data-line="' + line + '">';
+    if (tokens[idx].map && tokens[idx].level === 0) {
+      line = tokens[idx].map[0];
+      tokens[idx].attrJoin('class', 'line');
+      tokens[idx].attrSet('data-line', String(line));
     }
-    return '<p>';
-  };
+    return slf.renderToken(tokens, idx, options, env, slf);
+  }
 
-  mdHtml.renderer.rules.heading_open = function(tokens, idx) {
-    var line;
-    if (tokens[idx].lines && tokens[idx].level === 0) {
-      line = tokens[idx].lines[0];
-      return (
-        '<h' + tokens[idx].hLevel + ' class="line" data-line="' + line + '">'
-      );
-    }
-    return '<h' + tokens[idx].hLevel + '>';
-  };
+  mdHtml.renderer.rules.paragraph_open = mdHtml.renderer.rules.heading_open = injectLineNumbers;
 
   return function(src, asReactDOM = true) {
     const plainHtml = mdHtml.render(src);
