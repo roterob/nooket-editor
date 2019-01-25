@@ -1,4 +1,5 @@
 import * as React from 'react';
+import styled from 'styled-components';
 import classNames from 'classnames';
 import { Icon, Dropdown, Menu } from 'antd';
 import { UnControlled as CodeMirrorWrap, IInstance } from './CodeMirrorWrap';
@@ -12,6 +13,12 @@ import {
 import createHtmlRender from './render';
 import createScrollSync from './createScrollSync';
 import { EnumToolbarButtons } from './types';
+
+const ContainerEditor = styled.div`
+  .CodeMirror-scroll {
+    min-height: ${props => props.height}px;
+  }
+`;
 
 export enum EnumEditorMode {
   Vim = 'Vim',
@@ -34,8 +41,7 @@ export type NooketEditorProps = {
   viewMode?: EnumViewMode;
   value?: string;
   placeholder?: string;
-  width?: string;
-  height?: string;
+  height?: number;
   onToolbarAction?: (IInstance, string) => any;
   onChange?: (string) => void;
   onModeChange?: (EnumEditorMode) => void;
@@ -50,6 +56,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     viewMode: EnumViewMode.Normal,
     value: '',
     placeholder: '',
+    height: 150,
     onToolbarAction: (editor, actionName) => true,
     onChange: _ => {},
     toolbar: [
@@ -82,6 +89,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     stat: {},
     prevViewMode: null,
     lastUpdate: new Date().getTime(),
+    height: null,
   };
 
   editor: IInstance = null;
@@ -365,10 +373,12 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   public render() {
     const { focusOnEditor, isFullscreen, isSideBySide, value } = this.state;
     const { mode, backdrop, keyMap } = this.getModeConfig();
-    const { placeholder } = this.props;
+    const { placeholder, height } = this.props;
+
+    console.log('height', height);
 
     return (
-      <div
+      <ContainerEditor
         className={classNames('editor-container', {
           focus: focusOnEditor,
           fullscreen: isFullscreen,
@@ -376,6 +386,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
         })}
         onFocus={() => this.handleFocusOnEditor(true)}
         onBlur={() => this.handleFocusOnEditor(false)}
+        height={height}
       >
         {this.getToolbar()}
         <CodeMirrorWrap
@@ -406,7 +417,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
           {isSideBySide && this.renderHtml(value)}
         </div>
         {this.getFooter()}
-      </div>
+      </ContainerEditor>
     );
   }
 }

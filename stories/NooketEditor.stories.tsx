@@ -25,6 +25,7 @@ storiesOf('NooketDoc', module)
   .add('default', () => (
     <Container>
       <NooketEditor
+        height={100}
         placeholder="Write something interesting here"
         onToolbarAction={actionWithReturn('onToolbarAction', true)}
         onChange={action('onChange')}

@@ -22,8 +22,6 @@
 
 .CodeMirror {
   height: auto;
-  min-height: 150px;
-  height: auto;
   padding: 0px 5px 5px 5px;
   font: inherit;
   z-index: 1;
@@ -39,10 +37,6 @@
 
 .CodeMirror.CodeMirror-empty {
   font-style: italic;
-}
-
-.CodeMirror-scroll {
-  min-height: 150px;
 }
 
 .sided .CodeMirror {
