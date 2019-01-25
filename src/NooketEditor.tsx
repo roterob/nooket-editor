@@ -375,8 +375,6 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     const { mode, backdrop, keyMap } = this.getModeConfig();
     const { placeholder, height } = this.props;
 
-    console.log('height', height);
-
     return (
       <ContainerEditor
         className={classNames('editor-container', {
