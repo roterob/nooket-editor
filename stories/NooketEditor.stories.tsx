@@ -44,7 +44,10 @@ storiesOf('NooketDoc', module)
       <NooketEditor
         value={complexText}
         viewMode={EnumViewMode.SideBySide}
-        onToolbarAction={actionWithReturn('onToolbarAction', true)}
+        onToolbarAction={actionWithReturn(
+          'onToolbarAction',
+          'https://www.google.com'
+        )}
       />
     </Container>
   ));

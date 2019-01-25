@@ -744,18 +744,16 @@ export function cleanBlock(editor) {
   _cleanBlock(cm);
 }
 
-export function drawLink(editor) {
+export function drawLink(editor, url = 'https://') {
   var cm = editor;
   var stat = getState(cm);
-  var url = 'http://';
 
   _replaceSelection(cm, stat.link, insertTexts.link, url);
 }
 
-export function drawImage(editor) {
+export function drawImage(editor, url = 'https://') {
   var cm = editor;
   var stat = getState(cm);
-  var url = 'http://';
   _replaceSelection(cm, stat.image, insertTexts.image, url);
 }
 
@@ -870,7 +868,7 @@ export const toolbarBuiltInButtons = {
     icon: ListUlSolid,
     title: 'Generic List',
     default: true,
-    shortcut: 'Cmd-L',
+    shortcut: 'Cmd-U',
   },
   'ordered-list': {
     name: 'ordered-list',
@@ -878,7 +876,7 @@ export const toolbarBuiltInButtons = {
     icon: ListOlSolid,
     title: 'Numbered List',
     default: true,
-    shortcut: 'Cmd-Alt-L',
+    shortcut: 'Cmd-O',
   },
   'clean-block': {
     name: 'clean-block',
@@ -894,7 +892,7 @@ export const toolbarBuiltInButtons = {
     icon: LinkSolid,
     title: 'Create Link',
     default: true,
-    shortcut: 'Cmd-K',
+    shortcut: 'Cmd-L',
   },
   image: {
     name: 'image',

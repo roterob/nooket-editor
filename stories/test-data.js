@@ -1,6 +1,6 @@
-export const complexText = `# Remarkable
+export const complexText = `# Markdown-It
 
-> Experience real-time editing with Remarkable!
+> Experience real-time editing with MarkdonwIt!
 
 Click the \`clear\` link to start with a clean slate, or get the \`permalink\` to share or save your results.
 

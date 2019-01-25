@@ -34,8 +34,11 @@ export type NooketEditorProps = {
   viewMode?: EnumViewMode;
   value?: string;
   placeholder?: string;
+  width?: string;
+  height?: string;
   onToolbarAction?: (IInstance, string) => any;
   onChange?: (string) => void;
+  onModeChange?: (EnumEditorMode) => void;
 };
 
 class NooketEditor extends React.Component<NooketEditorProps, any> {
@@ -199,7 +202,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
 
     const res = onToolbarAction(this.editor, actionName);
 
-    if (res) {
+    if (res !== false) {
       if (actionName === 'fullscreen') {
         this.handleFullscreen();
       } else if (actionName == 'side-by-side') {

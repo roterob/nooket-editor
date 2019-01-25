@@ -153,6 +153,7 @@ export default function createScrollSync(
       preview.addEventListener('scroll', updateSourceScroll);
       isActive = true;
       lastUpdate = timestamp;
+      updatePreviewScroll();
     } else if (lastUpdate !== timestamp) {
       lastUpdate = timestamp;
       buildScrollMappingsDebounced();
