@@ -296,7 +296,7 @@
 .editor-preview-side {
   padding: 10px;
   position: fixed;
-  bottom: 35px;
+  bottom: 36px;
   width: 50%;
   top: 35px;
   right: 0;
@@ -307,6 +307,7 @@
   box-sizing: border-box;
   border: 1px solid #ddd;
   border-top-width: 0px;
+  border-bottom-width: 0px;
   padding-top: 2px;
 }
 

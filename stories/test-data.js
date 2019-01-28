@@ -1,4 +1,4 @@
-export const complexText = `# Markdown-It
+export const complexText = `# Markdown-It :)
 
 > Experience real-time editing with MarkdonwIt!
 

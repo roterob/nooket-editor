@@ -574,6 +574,18 @@ export class UnControlled extends React.Component<
     }
   }
 
+  public componentDidUpdate() {
+    this.hydrate(this.props);
+
+    this.shared.apply(this.props);
+
+    this.applied = true;
+
+    this.mounted = true;
+
+    this.shared.wire(this.props);
+  }
+
   /** @internal */
   public componentDidMount() {
     if (SERVER_RENDERED) return;
@@ -667,7 +679,6 @@ export class UnControlled extends React.Component<
 
   /** @internal */
   public render() {
-    console.log('Render');
     if (SERVER_RENDERED) return null;
 
     return <textarea ref={self => (this.ref = self)} />;

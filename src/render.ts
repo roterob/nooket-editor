@@ -9,7 +9,6 @@ import * as Footnote from 'markdown-it-footnote';
 import * as Emoji from 'markdown-it-emoji';
 import * as katex from 'markdown-it-katex';
 import * as hljs from 'highlight.js';
-import * as renderHtml from 'react-render-html';
 
 export default function createHtmlRender(): (string, bool) => any {
   const defaults = {
@@ -52,6 +51,10 @@ export default function createHtmlRender(): (string, bool) => any {
   };
 
   const mdHtml = MarkdownIt(defaults)
+    .use(katex, {
+      throwOnError: false,
+      errorColor: ' #cc0000',
+    })
     .use(Container)
     .use(Deflist)
     .use(Ins)
@@ -59,8 +62,7 @@ export default function createHtmlRender(): (string, bool) => any {
     .use(Sup)
     .use(Sub)
     .use(Footnote)
-    .use(Emoji)
-    .use(katex, { throwOnError: false, errorColor: ' #cc0000' });
+    .use(Emoji);
 
   //
   // Inject line numbers for sync scroll. Notes:
@@ -79,8 +81,7 @@ export default function createHtmlRender(): (string, bool) => any {
 
   mdHtml.renderer.rules.paragraph_open = mdHtml.renderer.rules.heading_open = injectLineNumbers;
 
-  return function(src, asReactDOM = true) {
-    const plainHtml = mdHtml.render(src);
-    return asReactDOM ? renderHtml(plainHtml) : plainHtml;
+  return function(src) {
+    return mdHtml.render(src);
   };
 }

@@ -68,8 +68,7 @@
     "markdown-it-mark": "^2.0.0",
     "markdown-it-sub": "^1.0.0",
     "markdown-it-sup": "^1.0.0",
-    "nooket-common": "0.0.9",
-    "react-render-html": "^0.6.0"
+    "nooket-common": "0.0.9"
   },
   "peerDependencies": {
     "react": "^16.5.2",

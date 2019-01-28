@@ -4,13 +4,17 @@ import styled from 'styled-components';
 import { action } from '@storybook/addon-actions';
 import { storiesOf } from '@storybook/react';
 
-import NooketEditor, { EnumViewMode } from '../src/NooketEditor';
+import NooketEditor, {
+  EnumViewMode,
+  EnumEditorMode,
+} from '../src/NooketEditor';
 import { complexText, imagesText } from './test-data';
 
 import 'antd/dist/antd.css';
 import '../src/css/editor.css';
 import '../src/css/markdown.css';
 import 'highlight.js/styles/solarized-light.css';
+import 'katex/dist/katex.min.css';
 
 const Container = styled.div`
   margin: 10px;
@@ -26,9 +30,11 @@ storiesOf('NooketDoc', module)
     <Container>
       <NooketEditor
         height={100}
+        mode={EnumEditorMode.Vim}
         placeholder="Write something interesting here"
         onToolbarAction={actionWithReturn('onToolbarAction', true)}
         onChange={action('onChange')}
+        onModeChange={action('onModeChange')}
       />
     </Container>
   ))

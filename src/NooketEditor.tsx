@@ -59,6 +59,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     height: 150,
     onToolbarAction: (editor, actionName) => true,
     onChange: _ => {},
+    onModeChange: _ => {},
     toolbar: [
       EnumToolbarButtons.bold,
       EnumToolbarButtons.italic,
@@ -88,6 +89,8 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     cursor: '0:0',
     stat: {},
     prevViewMode: null,
+    mode: null,
+    prevMode: null,
     lastUpdate: new Date().getTime(),
     height: null,
   };
@@ -101,7 +104,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   sideBySideRef: any = React.createRef();
 
   static getDerivedStateFromProps(nextProps, state) {
-    const { viewMode } = nextProps;
+    const { viewMode, mode } = nextProps;
     const newState = { ...state };
 
     if (!state.prevViewMode || viewMode !== state.prevViewMode) {
@@ -111,6 +114,11 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       newState.isPreview = viewMode === EnumViewMode.Preview;
       newState.isSideBySide = viewMode === EnumViewMode.SideBySide;
       newState.prevViewMode = viewMode;
+    }
+
+    if (state.prevMode !== mode) {
+      newState.prevMode = mode;
+      newState.mode = mode;
     }
 
     return newState;
@@ -251,6 +259,12 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     elt.setAttribute('data-line', lineInfo.line);
   }
 
+  private handleModeChange = mode => {
+    const { onModeChange } = this.props;
+    this.setState({ mode });
+    onModeChange(mode);
+  };
+
   private getToolbarButton = buttonName => {
     const buttonDefinition = toolbarBuiltInButtons[buttonName];
 
@@ -322,7 +336,9 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   });
 
   private getModeConfig = () => {
-    const { spellChecker, mode } = this.props;
+    const { spellChecker } = this.props;
+    const { mode } = this.state;
+
     const res: any = {
       mode: { name: 'cmd', allowAtxHeaderWithoutSpace: false },
       backdrop: null,
@@ -343,21 +359,26 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
 
   private getFooter = () => {
     const { showStatusbar } = this.props;
-    const { lines, words, cursor } = this.state;
+    const { lines, words, cursor, mode } = this.state;
+
     return (
       showStatusbar && (
         <div className="editor-statusbar">
           <div className="mode">
             <Dropdown
               overlay={
-                <Menu className="mode-menu">
-                  <Menu.Item key="0">Normal mode</Menu.Item>
-                  <Menu.Item key="1">Vim mode</Menu.Item>
+                <Menu
+                  className="mode-menu"
+                  onClick={menu => this.handleModeChange(menu.key)}
+                >
+                  <Menu.Item key={EnumEditorMode.Normal}>Normal mode</Menu.Item>
+                  <Menu.Item key={EnumEditorMode.Vim}>Vim mode</Menu.Item>
                 </Menu>
               }
             >
               <span style={{ userSelect: 'none', cursor: 'pointer' }}>
-                Vim mode <Icon type="down" />
+                {mode == EnumEditorMode.Vim ? 'Vim mode' : 'Normal mode'}{' '}
+                <Icon type="down" />
               </span>
             </Dropdown>
           </div>
@@ -411,9 +432,10 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
           className={classNames('editor-preview-side', 'markdown-body', {
             'editor-preview-active-side': isSideBySide,
           })}
-        >
-          {isSideBySide && this.renderHtml(value)}
-        </div>
+          dangerouslySetInnerHTML={{
+            __html: isSideBySide && this.renderHtml(value),
+          }}
+        />
         {this.getFooter()}
       </ContainerEditor>
     );
