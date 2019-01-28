@@ -102,6 +102,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   renderHtml: any = createHtmlRender();
   scrollSync: any = null;
   sideBySideRef: any = React.createRef();
+  previewPanel: HTMLElement = null;
 
   static getDerivedStateFromProps(nextProps, state) {
     const { viewMode, mode } = nextProps;
@@ -136,6 +137,11 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
 
     this.scrollSync = createScrollSync(sourcePanel, previewPanel);
 
+    // add preview panel
+    this.previewPanel = document.createElement('div');
+    this.previewPanel.className = 'editor-preview markdown-body';
+    this.editor.getWrapperElement().appendChild(this.previewPanel);
+
     this.applySideEffects();
   }
 
@@ -148,7 +154,13 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   }
 
   private applySideEffects() {
-    const { isFullscreen, isSideBySide, lastUpdate } = this.state;
+    const {
+      isFullscreen,
+      isSideBySide,
+      isPreview,
+      lastUpdate,
+      value,
+    } = this.state;
 
     // Prevent scrolling on body during fullscreen active
     if (isFullscreen) {
@@ -161,6 +173,15 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       document.body.style.overflow = this.savedOverflow;
       this.savedOverflow = null;
       this.editor.setOption('viewportMargin', Infinity);
+    }
+
+    if (!isFullscreen && isPreview) {
+      this.previewPanel.className =
+        'editor-preview editor-preview-active markdown-body';
+      this.previewPanel.innerHTML = this.renderHtml(value);
+    } else {
+      this.previewPanel.className = 'editor-preview markdown-body';
+      this.previewPanel.innerHTML = '';
     }
 
     if (isSideBySide) {
@@ -210,6 +231,16 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     this.setState({
       isSideBySide: !isSideBySide,
       isFullscreen: isSideBySide ? isFullscreen : true,
+      isPreview: false,
+    });
+  };
+
+  private handlePreview = () => {
+    const { isPreview } = this.state;
+
+    this.setState({
+      isSideBySide: false,
+      isPreview: !isPreview,
     });
   };
 
@@ -221,8 +252,10 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     if (res !== false) {
       if (actionName === 'fullscreen') {
         this.handleFullscreen();
-      } else if (actionName == 'side-by-side') {
+      } else if (actionName === 'side-by-side') {
         this.handleSideBySide();
+      } else if (actionName === 'preview') {
+        this.handlePreview();
       } else if (defaultAction) {
         defaultAction(this.editor, res);
       }
@@ -392,7 +425,13 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   };
 
   public render() {
-    const { focusOnEditor, isFullscreen, isSideBySide, value } = this.state;
+    const {
+      focusOnEditor,
+      isFullscreen,
+      isSideBySide,
+      isPreview,
+      value,
+    } = this.state;
     const { mode, backdrop, keyMap } = this.getModeConfig();
     const { placeholder, height } = this.props;
 
@@ -402,6 +441,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
           focus: focusOnEditor,
           fullscreen: isFullscreen,
           sided: isSideBySide,
+          preview: isPreview,
         })}
         onFocus={() => this.handleFocusOnEditor(true)}
         onBlur={() => this.handleFocusOnEditor(false)}
@@ -436,6 +476,16 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
             __html: isSideBySide && this.renderHtml(value),
           }}
         />
+        {isPreview && isFullscreen && (
+          <div
+            className={classNames(
+              'editor-preview',
+              'editor-preview-active',
+              'markdown-body'
+            )}
+            dangerouslySetInnerHTML={{ __html: this.renderHtml(value) }}
+          />
+        )}
         {this.getFooter()}
       </ContainerEditor>
     );
