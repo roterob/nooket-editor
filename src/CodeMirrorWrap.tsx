@@ -18,7 +18,7 @@ import 'codemirror/keymap/vim.js';
 import 'codemirror/addon/edit/continuelist.js';
 import 'codemirror/addon/display/fullscreen.js';
 
-import './codemirror/cmd.js';
+import './codemirror/cmd.ts';
 
 declare let global: any;
 declare let require: any;
