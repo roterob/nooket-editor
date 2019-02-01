@@ -1,10 +1,10 @@
 {
   "name": "nooket-editor",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Custom markdown editor for Nooket",
   "main": "lib/index.js",
   "scripts": {
-    "svg": "npx @svgr/cli -d ./src/svg ./src/svg",
+    "svg": "npx @svgr/cli --template ./src/svg/template.js -d ./src/svg ./src/svg",
     "build": "npm rm -rf ./lib && tsc && cp -r ./src/css ./lib",
     "storybook": "start-storybook -p 6006",
     "prepare": "npm run build",
