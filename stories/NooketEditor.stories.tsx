@@ -49,6 +49,8 @@ storiesOf('NooketDoc', module)
   .add('sideBySide', () => (
     <Container>
       <NooketEditor
+        zIndex={20}
+        fontSize={15}
         value={complexText}
         viewMode={EnumViewMode.SideBySide}
         onToolbarAction={actionWithReturn(
