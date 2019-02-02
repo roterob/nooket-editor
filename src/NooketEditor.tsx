@@ -9,12 +9,17 @@ import {
   getState,
   toolbarBuiltInButtons,
   fixShortcut,
+  promptTexts,
 } from './util';
 import createHtmlRender from './render';
 import createScrollSync from './createScrollSync';
 import { EnumToolbarButtons } from './types';
 
 const ContainerEditor = styled.div`
+  .editor-container {
+    background-color: #fff;
+    z-index: ${props => props.zIndex};
+  }
   .CodeMirror-scroll {
     min-height: ${props => props.height}px;
   }
@@ -42,6 +47,7 @@ export type NooketEditorProps = {
   value?: string;
   placeholder?: string;
   height?: number;
+  zIndex?: number;
   onToolbarAction?: (IInstance, string) => any;
   onChange?: (string) => void;
   onModeChange?: (EnumEditorMode) => void;
@@ -57,6 +63,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     value: '',
     placeholder: '',
     height: 150,
+    zIndex: 10,
     onToolbarAction: (editor, actionName) => true,
     onChange: _ => {},
     onModeChange: _ => {},
@@ -433,7 +440,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       value,
     } = this.state;
     const { mode, backdrop, keyMap } = this.getModeConfig();
-    const { placeholder, height } = this.props;
+    const { placeholder, height, zIndex } = this.props;
 
     return (
       <ContainerEditor
@@ -446,6 +453,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
         onFocus={() => this.handleFocusOnEditor(true)}
         onBlur={() => this.handleFocusOnEditor(false)}
         height={height}
+        zIneex={zIndex}
       >
         {this.getToolbar()}
         <CodeMirrorWrap
