@@ -82,6 +82,10 @@ export default function createHtmlRender(): (string, bool) => any {
   mdHtml.renderer.rules.paragraph_open = mdHtml.renderer.rules.heading_open = injectLineNumbers;
 
   return function(src) {
-    return mdHtml.render(src);
+    if (src) {
+      mdHtml.render(src);
+    } else {
+      return '';
+    }
   };
 }
