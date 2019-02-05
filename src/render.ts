@@ -83,7 +83,7 @@ export default function createHtmlRender(): (string, bool) => any {
 
   return function(src) {
     if (src) {
-      mdHtml.render(src);
+      return mdHtml.render(src);
     } else {
       return '';
     }
