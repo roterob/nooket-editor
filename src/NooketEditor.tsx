@@ -117,8 +117,8 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   previewPanel: HTMLElement = null;
 
   static getDerivedStateFromProps(nextProps, state) {
-    const { viewMode, mode } = nextProps;
-    const newState = { ...state };
+    const { viewMode, mode, value } = nextProps;
+    const newState = { ...state, value };
 
     if (!state.prevViewMode || viewMode !== state.prevViewMode) {
       newState.isFullscreen =
@@ -139,8 +139,6 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
 
   public componentDidMount() {
     const { isSideBySide, value } = this.state;
-
-    this.editor.setValue(value);
 
     const sourcePanel = this.editor
       .getWrapperElement()
@@ -187,6 +185,11 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       this.editor.setOption('viewportMargin', Infinity);
     }
 
+    const editorCurrentValue = this.editor.getValue();
+    if (editorCurrentValue !== value) {
+      this.editor.setValue(value);
+    }
+
     if (!isFullscreen && isPreview) {
       this.previewPanel.className =
         'editor-preview editor-preview-active markdown-body';
@@ -224,8 +227,8 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       };
     }
 
-    this.setState(newState);
     onChange(value);
+    this.setState(newState);
   };
 
   private handleFullscreen = () => {

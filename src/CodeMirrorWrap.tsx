@@ -669,9 +669,7 @@ export class UnControlled extends React.Component<
       const { value, ...restProps } = this.props;
       const { value: nextValue, ...restNextProps } = nextProps;
 
-      update =
-        (value !== nextValue && this.editor.getValue() !== nextValue) ||
-        !deepEqual(restProps, restNextProps);
+      update = !deepEqual(restProps, restNextProps);
     }
 
     return update;
