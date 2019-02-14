@@ -206,7 +206,9 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       this.scrollSync.off();
     }
 
-    this.editor.focus();
+    if (isFullscreen) {
+      this.editor.focus();
+    }
   }
 
   private handleEditorMounted = (editor, value, cb, codemirror) => {
