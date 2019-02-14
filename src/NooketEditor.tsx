@@ -115,6 +115,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   scrollSync: any = null;
   sideBySideRef: any = React.createRef();
   previewPanel: HTMLElement = null;
+  stopEscPropagation: boolean = false;
 
   static getDerivedStateFromProps(nextProps, state) {
     const { viewMode, mode, value } = nextProps;
@@ -286,9 +287,21 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
 
     if (isVimMode && !vimInNormalMode) {
       this.CodeMirror.Vim.handleKey(cm, '<Esc>');
+      this.stopEscPropagation = true;
     } else if (isFullscreen) {
       this.handleFullscreen();
+      this.stopEscPropagation = true;
+    } else {
+      this.stopEscPropagation = false;
     }
+  };
+
+  private handleKeyEvent = (type, e) => {
+    if (this.stopEscPropagation && e.keyCode === 27) {
+      e.stopPropagation();
+    }
+
+    this.stopEscPropagation = false;
   };
 
   private handleCursorActivity = () => {
@@ -463,6 +476,8 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
         height={height}
         zIndex={zIndex}
         fontSize={fontSize}
+        onKeyDown={e => this.handleKeyEvent('keyDown', e)}
+        onKeyUp={e => this.handleKeyEvent('keyUp', e)}
       >
         {this.getToolbar()}
         <CodeMirrorWrap
