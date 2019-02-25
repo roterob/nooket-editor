@@ -116,6 +116,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   sideBySideRef: any = React.createRef();
   previewPanel: HTMLElement = null;
   stopEscPropagation: boolean = false;
+  isViewModeChange: boolean = true;
 
   static getDerivedStateFromProps(nextProps, state) {
     const { viewMode, mode, value } = nextProps;
@@ -161,6 +162,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   }
 
   public componentDidUpdate() {
+    console.log('componentDidUpdate');
     this.applySideEffects();
   }
 
@@ -206,8 +208,9 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       this.scrollSync.off();
     }
 
-    if (isFullscreen) {
+    if (this.isViewModeChange) {
       this.editor.focus();
+      this.isViewModeChange = false;
     }
   }
 
@@ -243,6 +246,8 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       isFullscreen: !isFullscreen,
       isSideBySide: false,
     });
+
+    this.isViewModeChange = true;
   };
 
   private handleSideBySide = () => {
@@ -253,6 +258,8 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       isFullscreen: isSideBySide ? isFullscreen : true,
       isPreview: false,
     });
+
+    this.isViewModeChange = true;
   };
 
   private handlePreview = () => {
@@ -262,6 +269,8 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       isSideBySide: false,
       isPreview: !isPreview,
     });
+
+    this.isViewModeChange = true;
   };
 
   private handleToolbarAction = (actionName, defaultAction) => {
