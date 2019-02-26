@@ -162,7 +162,6 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   }
 
   public componentDidUpdate() {
-    console.log('componentDidUpdate');
     this.applySideEffects();
   }
 
