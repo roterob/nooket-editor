@@ -116,7 +116,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   sideBySideRef: any = React.createRef();
   previewPanel: HTMLElement = null;
   stopEscPropagation: boolean = false;
-  isViewModeChange: boolean = true;
+  isViewModeChange: boolean = false;
 
   static getDerivedStateFromProps(nextProps, state) {
     const { viewMode, mode, value } = nextProps;
