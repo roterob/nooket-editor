@@ -68,6 +68,7 @@ export interface CustomEditorConfiguration
 
 export interface IInstance extends codemirror.Editor, IDoc {
   options: CustomEditorConfiguration;
+  save: (IInstance) => void;
 }
 
 /* </tshacks> */
@@ -125,6 +126,7 @@ export interface ICodeMirror {
     line: codemirror.LineHandle,
     element: HTMLElement
   ) => void;
+  onSave?: (editor: IInstance) => void;
   onScroll?: (editor: IInstance, data: codemirror.ScrollInfo) => void;
   onSelection?: (editor: IInstance, data: IGetSelectionOptions) => void;
   onTouchStart?: DomEvent;
@@ -599,6 +601,10 @@ export class UnControlled extends React.Component<
     }
 
     this.editor = cm.fromTextArea(this.ref as HTMLTextAreaElement) as IInstance;
+
+    if (this.props.onSave) {
+      this.editor.save = cm => this.props.onSave(cm);
+    }
 
     this.shared = new Shared(this.editor, this.props);
 

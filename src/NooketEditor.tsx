@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import classNames from 'classnames';
+import ReactHtmlParser from 'react-html-parser';
 import { Icon, Dropdown, Menu } from 'antd';
 import { UnControlled as CodeMirrorWrap, IInstance } from './CodeMirrorWrap';
 import * as memoize from 'memoize-one';
@@ -14,6 +15,7 @@ import {
 import createHtmlRender from './render';
 import createScrollSync from './createScrollSync';
 import { EnumToolbarButtons } from './types';
+import { write } from 'fs';
 
 const ContainerEditor = styled.div`
   background-color: #fff;
@@ -21,6 +23,10 @@ const ContainerEditor = styled.div`
 
   .CodeMirror {
     font-size: ${props => props.fontSize}px;
+  }
+
+  .CodeMirror-code {
+    padding-bottom: ${props => (props.isSideBySide ? 300 : 0)}px;
   }
 
   .CodeMirror-scroll {
@@ -54,6 +60,7 @@ export type NooketEditorProps = {
   fontSize?: number;
   onToolbarAction?: (IInstance, string) => any;
   onChange?: (string) => void;
+  onSave?: (string) => void;
   onModeChange?: (EnumEditorMode) => void;
 };
 
@@ -71,6 +78,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     fontSize: 14,
     onToolbarAction: (editor, actionName) => true,
     onChange: _ => {},
+    onSave: _ => {},
     onModeChange: _ => {},
     toolbar: [
       EnumToolbarButtons.bold,
@@ -171,6 +179,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       isSideBySide,
       isPreview,
       lastUpdate,
+      focusOnEditor,
       value,
     } = this.state;
 
@@ -195,6 +204,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     if (!isFullscreen && isPreview) {
       this.previewPanel.className =
         'editor-preview editor-preview-active markdown-body';
+
       this.previewPanel.innerHTML = this.renderHtml(value);
     } else {
       this.previewPanel.className = 'editor-preview markdown-body';
@@ -220,6 +230,13 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
 
   private handleFocusOnEditor = focusOnEditor =>
     this.setState({ focusOnEditor });
+
+  private handleEditorSave = editor => {
+    const { value } = this.state;
+    const { onSave } = this.props;
+
+    onSave(value);
+  };
 
   private handleEditorChange = (editor, data, value) => {
     const { showStatusbar, onChange } = this.props;
@@ -490,6 +507,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
         fontSize={fontSize}
         onKeyDown={e => this.handleKeyEvent('keyDown', e)}
         onKeyUp={e => this.handleKeyEvent('keyUp', e)}
+        isSideBySide={isSideBySide}
       >
         {this.getToolbar()}
         <CodeMirrorWrap
@@ -507,6 +525,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
             extraKeys: this.getShortcuts(),
           }}
           onChange={this.handleEditorChange}
+          onSave={this.handleEditorSave}
           editorDidMount={this.handleEditorMounted}
           onCursorActivity={this.handleCursorActivity}
           onRenderLine={this.handleRenderLine}
@@ -516,10 +535,9 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
           className={classNames('editor-preview-side', 'markdown-body', {
             'editor-preview-active-side': isSideBySide,
           })}
-          dangerouslySetInnerHTML={{
-            __html: isSideBySide && this.renderHtml(value),
-          }}
-        />
+        >
+          {isSideBySide && ReactHtmlParser(this.renderHtml(value))}
+        </div>
         {isPreview && isFullscreen && (
           <div
             className={classNames(

@@ -1,4 +1,5 @@
 import * as debounce from 'lodash.debounce';
+import { isDeepStrictEqual } from 'util';
 
 function removeLineInfo(container) {
   container
@@ -39,8 +40,6 @@ function buildScrollMap(
     offset: container.scrollHeight,
   };
 
-  //removeLineInfo(container.querySelector('.CodeMirror-code') || container);
-
   const scrollTop = container.scrollTop;
   lines.forEach((l, i) => {
     const lineNumber = useDataLineAttr
@@ -52,8 +51,6 @@ function buildScrollMap(
         line: lineNumber,
         offset: scrollTop + rect.top - 25, // 25 es un factor de corrección
       };
-
-      //showLineInfo(l.parentElement, lineNumber, res[lineNumber].offset);
     }
   });
 
@@ -114,16 +111,18 @@ export default function createScrollSync(
 
   const updatePreviewScroll = debounce(
     function() {
-      if (srcScroll) {
-        srcScroll = false;
-        return;
-      }
-      prvScroll = true;
-      preview.scrollTop = calculateScrollTop(
-        srcScrollMap,
-        prvScrollMap,
-        source.scrollTop
-      );
+      try {
+        if (srcScroll) {
+          srcScroll = false;
+          return;
+        }
+        prvScroll = true;
+        preview.scrollTop = calculateScrollTop(
+          srcScrollMap,
+          prvScrollMap,
+          source.scrollTop
+        );
+      } catch {}
     },
     50,
     { maxWait: 100 }
@@ -131,16 +130,18 @@ export default function createScrollSync(
 
   const updateSourceScroll = debounce(
     function() {
-      if (prvScroll) {
-        prvScroll = false;
-        return;
-      }
-      srcScroll = true;
-      source.scrollTop = calculateScrollTop(
-        prvScrollMap,
-        srcScrollMap,
-        preview.scrollTop
-      );
+      try {
+        if (prvScroll) {
+          prvScroll = false;
+          return;
+        }
+        srcScroll = true;
+        source.scrollTop = calculateScrollTop(
+          prvScrollMap,
+          srcScrollMap,
+          preview.scrollTop
+        );
+      } catch {}
     },
     50,
     { maxWait: 100 }
@@ -170,7 +171,7 @@ export default function createScrollSync(
   return {
     on,
     off,
-    isActive: function() {
+    isActive() {
       return isActive;
     },
   };
