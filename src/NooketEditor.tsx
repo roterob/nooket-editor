@@ -26,7 +26,11 @@ const ContainerEditor = styled.div`
   }
 
   .CodeMirror-code {
-    padding-bottom: ${props => (props.isSideBySide ? 300 : 0)}px;
+    padding-bottom: ${props => (props.isSideBySide ? 400 : 0)}px;
+  }
+
+  .markdown-body {
+    padding-bottom: ${props => (props.isSideBySide ? 400 : 0)}px;
   }
 
   .CodeMirror-scroll {
