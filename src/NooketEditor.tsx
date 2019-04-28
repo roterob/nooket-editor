@@ -123,7 +123,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   CodeMirror: any = null;
   numSep: number = 0;
   savedOverflow: any = null;
-  renderHtml: any = createHtmlRender();
+  renderHtml: any = createHtmlRender({ addLineNumbers: true });
   scrollSync: any = null;
   sideBySideRef: any = React.createRef();
   previewPanel: HTMLElement = null;
