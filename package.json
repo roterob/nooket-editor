@@ -1,6 +1,6 @@
 {
   "name": "nooket-editor",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "Custom markdown editor for Nooket",
   "main": "lib/index.js",
   "scripts": {

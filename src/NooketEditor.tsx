@@ -312,7 +312,6 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   };
 
   private handleESC = (cm, e) => {
-    console.log('ne.handleESC: handling ESC');
     const { mode } = this.props;
     const { isFullscreen } = this.state;
 
@@ -320,22 +319,18 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     const vimInNormalMode = cm.getOption('keyMap') === 'vim';
 
     if (isVimMode && !vimInNormalMode) {
-      console.log('ne.handleESC: isVimMode && !vimInNormalMode');
       this.CodeMirror.Vim.handleKey(cm, '<Esc>');
       this.stopEscPropagation = true;
     } else if (isFullscreen) {
-      console.log('ne.handleESC: isFullscreen');
       this.handleFullscreen();
       this.stopEscPropagation = true;
     } else {
-      console.log('ne.handleESC: else');
       this.stopEscPropagation = false;
     }
   };
 
   private handleKeyEvent = (type, e) => {
     if (this.stopEscPropagation && e.keyCode === 27) {
-      console.log('ne.handleKeyEvent: e.stopPropagation');
       e.stopPropagation();
     }
 
