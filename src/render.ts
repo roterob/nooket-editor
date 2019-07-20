@@ -21,6 +21,8 @@ export default function createHtmlRender(
     langPrefix: 'language-', // CSS language prefix for fenced blocks
     linkify: true, // autoconvert URL-like texts to links
     linkTarget: '_blank', // set target to open link in
+    customLinks: null,
+    customLinksHandler: null,
     addLineNumber: false,
     typographer: true, // Enable smartypants and other sweet transforms
     highlight: function(str, lang) {
@@ -84,7 +86,9 @@ export default function createHtmlRender(
     mdHtml.renderer.rules.paragraph_open = mdHtml.renderer.rules.heading_open = injectLineNumbers;
   }
 
-  if (options.linkTarget) {
+  const customLinksSupport = options.customLinks && options.customLinksHandler;
+
+  if (options.linkTarget || customLinksSupport) {
     mdHtml.renderer.rules.link_open = function(
       tokens,
       idx,
@@ -93,12 +97,30 @@ export default function createHtmlRender(
       self
     ) {
       // If you are sure other plugins can't add `target` - drop check below
-      const aIndex = tokens[idx].attrIndex('target');
-
+      let aIndex = tokens[idx].attrIndex('target');
       if (aIndex < 0) {
         tokens[idx].attrPush(['target', options.linkTarget]); // add new attribute
       } else {
         tokens[idx].attrs[aIndex][1] = options.linkTarget; // replace value of existing attr
+      }
+
+      if (customLinksSupport) {
+        aIndex = tokens[idx].attrIndex('href');
+        if (aIndex >= 0) {
+          const currentValue = tokens[idx].attrs[aIndex][1];
+          if (currentValue.startsWith(options.customLinks)) {
+            const attributes = options.customLinksHandler(
+              'a',
+              currentValue,
+              tokens
+            );
+            if (typeof attributes === 'string') {
+              tokens[idx].attrs[aIndex][1] = attributes;
+            } else {
+              addAttributes(tokens[idx], attributes);
+            }
+          }
+        }
       }
 
       // pass token to default renderer.
@@ -106,11 +128,48 @@ export default function createHtmlRender(
     };
   }
 
-  return function(src) {
+  if (customLinksSupport) {
+    mdHtml.renderer.rules.image = function(tokens, idx, options, env, self) {
+      const aIndex = tokens[idx].attrIndex('src');
+      if (aIndex >= 0) {
+        const currentValue = tokens[idx].attrs[aIndex][1];
+        if (currentValue.startsWith(options.customLinks)) {
+          const attributes = options.customLinksHandler(
+            'img',
+            currentValue,
+            tokens
+          );
+          if (typeof attributes === 'string') {
+            tokens[idx].attrs[aIndex][1] = attributes;
+          } else {
+            addAttributes(tokens[idx], attributes);
+          }
+        }
+      }
+
+      // pass token to default renderer.
+      return self.renderToken(tokens, idx, options, env, self);
+    };
+  }
+
+  return src => {
     if (src) {
       return mdHtml.render(src);
     } else {
       return '';
     }
   };
+}
+
+function addAttributes(token, attrObj) {
+  if (attrObj) {
+    Object.keys(attrObj).forEach(k => {
+      const index = token.attrIndex(k);
+      if (index < 0) {
+        token.attrPush([k, attrObj[k]]);
+      } else {
+        token.attrs[index][1] = attrObj[k];
+      }
+    });
+  }
 }

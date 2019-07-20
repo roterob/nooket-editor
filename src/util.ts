@@ -14,6 +14,8 @@ import RedoSolid from './svg/RedoSolid';
 import StrikethroughSolid from './svg/StrikethroughSolid';
 import TableSolid from './svg/TableSolid';
 import UndoSolid from './svg/UndoSolid';
+import PaperclipSolid from './svg/PaperclipSolid';
+import { object } from 'prop-types';
 
 export function wordCount(data) {
   var pattern = /[a-zA-Z0-9_\u0392-\u03c9\u0410-\u04F9]+|[\u4E00-\u9FFF\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\uac00-\ud7af]+/g;
@@ -200,7 +202,7 @@ function _cleanBlock(cm) {
   }
 }
 
-function _replaceSelection(cm, active, startEnd, url?) {
+function _replaceSelection(cm, active, startEnd, url?, text?) {
   if (/editor-preview-active/.test(cm.getWrapperElement().lastChild.className))
     return;
 
@@ -221,7 +223,7 @@ function _replaceSelection(cm, active, startEnd, url?) {
       ch: 0,
     });
   } else {
-    text = cm.getSelection();
+    text = cm.getSelection() || text || '';
     cm.replaceSelection(start + text + end);
 
     startPoint.ch += start.length;
@@ -744,11 +746,23 @@ export function cleanBlock(editor) {
   _cleanBlock(cm);
 }
 
-export function drawLink(editor, url = 'https://') {
+export function drawLink(editor, url: any) {
   var cm = editor;
   var stat = getState(cm);
 
-  _replaceSelection(cm, stat.link, insertTexts.link, url);
+  if (typeof url === 'string' && url.startsWith(':') && url.endsWith(':')) {
+    _replaceSelection(cm, stat.link, [url, '']);
+  } else {
+    var linkUrl = url || 'https://';
+    var linkText = null;
+
+    if (url instanceof Object) {
+      linkUrl = url['link'];
+      linkText = url['text'];
+    }
+
+    _replaceSelection(cm, stat.link, insertTexts.link, linkUrl, linkText);
+  }
 }
 
 export function drawImage(editor, url = 'https://') {
@@ -901,6 +915,14 @@ export const toolbarBuiltInButtons = {
     title: 'Insert Image',
     default: true,
     shortcut: 'Cmd-Alt-I',
+  },
+  instance: {
+    name: 'instance',
+    action: drawLink,
+    icon: PaperclipSolid,
+    title: 'Link to instance',
+    default: true,
+    shortcut: 'Cmd-.',
   },
   table: {
     name: 'table',

@@ -10,12 +10,10 @@ import {
   getState,
   toolbarBuiltInButtons,
   fixShortcut,
-  promptTexts,
 } from './util';
 import createHtmlRender from './render';
 import createScrollSync from './createScrollSync';
 import { EnumToolbarButtons } from './types';
-import { write } from 'fs';
 
 const ContainerEditor = styled.div`
   background-color: #fff;
@@ -55,6 +53,7 @@ export type NooketEditorProps = {
   showStatusbar?: boolean;
   spellChecker?: boolean;
   toolbar?: EnumToolbarButtons[];
+  header?: React.ReactNode;
   mode?: EnumEditorMode;
   viewMode?: EnumViewMode;
   value?: string;
@@ -62,6 +61,7 @@ export type NooketEditorProps = {
   height?: number;
   zIndex?: number;
   fontSize?: number;
+  markdownItOptions?: any;
   onToolbarAction?: (IInstance, string) => any;
   onChange?: (string) => void;
   onSave?: (string) => void;
@@ -80,6 +80,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
     height: 150,
     zIndex: 10,
     fontSize: 14,
+    markdownItOptions: {},
     onToolbarAction: (editor, actionName) => true,
     onChange: _ => {},
     onSave: _ => {},
@@ -95,6 +96,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       EnumToolbarButtons.separator,
       EnumToolbarButtons.link,
       EnumToolbarButtons.image,
+      EnumToolbarButtons.instance,
       EnumToolbarButtons.separator,
       EnumToolbarButtons.preview,
       EnumToolbarButtons.sideBySide,
@@ -123,7 +125,9 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   CodeMirror: any = null;
   numSep: number = 0;
   savedOverflow: any = null;
-  renderHtml: any = createHtmlRender({ addLineNumbers: true });
+  renderHtml: any = createHtmlRender(
+    Object.assign({}, this.props.markdownItOptions, { addLineNumbers: true })
+  );
   scrollSync: any = null;
   sideBySideRef: any = React.createRef();
   previewPanel: HTMLElement = null;
@@ -298,7 +302,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
 
     const res = onToolbarAction(this.editor, actionName);
 
-    if (res !== false) {
+    const execAction = actionRes => {
       if (actionName === 'fullscreen') {
         this.handleFullscreen();
       } else if (actionName === 'side-by-side') {
@@ -306,7 +310,15 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
       } else if (actionName === 'preview') {
         this.handlePreview();
       } else if (defaultAction) {
-        defaultAction(this.editor, res);
+        defaultAction(this.editor, actionRes);
+      }
+    };
+
+    if (res !== false) {
+      if (res instanceof Promise) {
+        res.then(actionRes => execAction(actionRes));
+      } else {
+        execAction(res);
       }
     }
   };
@@ -396,13 +408,15 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   };
 
   private getToolbar = () => {
-    const { toolbar } = this.props;
+    const { toolbar, header } = this.props;
 
     this.numSep = 0;
 
     return (
       <div className="editor-toolbar">
-        {toolbar.map(buttonName => this.getToolbarButton(buttonName))}
+        {header
+          ? header
+          : toolbar.map(buttonName => this.getToolbarButton(buttonName))}
       </div>
     );
   };

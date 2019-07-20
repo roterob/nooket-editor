@@ -189,6 +189,7 @@ abstract class Helper {
   }
 }
 
+// tslint:disable-next-line:max-classes-per-file
 class Shared implements ICommon {
   private editor: IInstance;
   private props: ICodeMirror;
@@ -482,6 +483,7 @@ class Shared implements ICommon {
   }
 }
 
+// tslint:disable-next-line:max-classes-per-file
 export class UnControlled extends React.Component<
   IUnControlledCodeMirror,
   any

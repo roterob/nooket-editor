@@ -38,6 +38,7 @@ storiesOf('NooketDoc', module)
       onToolbarAction={actionWithReturn('onToolbarAction', true)}
     />
   ))
+  .add('withOtherHeader', () => <NooketEditorWithState value={complexText} />)
   .add('sideBySide', () => (
     <NooketEditorWithState
       zIndex={20}

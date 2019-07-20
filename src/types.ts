@@ -17,6 +17,7 @@ export enum EnumToolbarButtons {
   separator2 = 'separator-2',
   link = 'link',
   image = 'image',
+  instance = 'instance',
   table = 'table',
   horizontalRule = 'horizontal-rule',
   separator3 = 'separator-3',
