@@ -9,7 +9,7 @@ import * as Footnote from 'markdown-it-footnote';
 import * as Emoji from 'markdown-it-emoji';
 import * as katex from 'markdown-it-katex';
 import * as hljs from 'highlight.js';
-import { setFlagsFromString } from 'v8';
+import * as video from 'markdown-it-video';
 
 export default function createHtmlRender(
   markdownItOptions?: any
@@ -70,7 +70,8 @@ export default function createHtmlRender(
     .use(Sup)
     .use(Sub)
     .use(Footnote)
-    .use(Emoji);
+    .use(Emoji)
+    .use(video);
 
   if (options.addLineNumbers) {
     function injectLineNumbers(tokens, idx, options, env, slf) {

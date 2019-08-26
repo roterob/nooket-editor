@@ -1,6 +1,6 @@
 {
   "name": "nooket-editor",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "description": "Custom markdown editor for Nooket",
   "main": "lib/index.js",
   "scripts": {
@@ -69,6 +69,7 @@
     "markdown-it-mark": "^2.0.0",
     "markdown-it-sub": "^1.0.0",
     "markdown-it-sup": "^1.0.0",
+    "markdown-it-video": "^0.6.3",
     "nooket-common": "0.0.9",
     "react-html-parser": "^2.0.2"
   },
