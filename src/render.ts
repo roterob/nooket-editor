@@ -1,5 +1,4 @@
 import * as MarkdownIt from 'markdown-it';
-import * as Container from 'markdown-it-container';
 import * as Deflist from 'markdown-it-deflist';
 import * as Ins from 'markdown-it-ins';
 import * as Mark from 'markdown-it-mark';
@@ -9,7 +8,6 @@ import * as Footnote from 'markdown-it-footnote';
 import * as Emoji from 'markdown-it-emoji';
 import * as katex from 'markdown-it-katex';
 import * as hljs from 'highlight.js';
-import * as video from 'markdown-it-video';
 
 export default function createHtmlRender(
   markdownItOptions?: any
@@ -63,15 +61,13 @@ export default function createHtmlRender(
       throwOnError: false,
       errorColor: ' #cc0000',
     })
-    .use(Container)
     .use(Deflist)
     .use(Ins)
     .use(Mark)
     .use(Sup)
     .use(Sub)
     .use(Footnote)
-    .use(Emoji)
-    .use(video);
+    .use(Emoji);
 
   if (options.addLineNumbers) {
     function injectLineNumbers(tokens, idx, options, env, slf) {
@@ -109,10 +105,12 @@ export default function createHtmlRender(
         aIndex = tokens[idx].attrIndex('href');
         if (aIndex >= 0) {
           const currentValue = tokens[idx].attrs[aIndex][1];
-          if (currentValue.startsWith(options.customLinks)) {
+          const match = currentValue.match(options.customLinks);
+          if (match) {
             const attributes = options.customLinksHandler(
               'a',
               currentValue,
+              match[1],
               tokens
             );
             if (typeof attributes === 'string') {
@@ -134,10 +132,12 @@ export default function createHtmlRender(
       const aIndex = tokens[idx].attrIndex('src');
       if (aIndex >= 0) {
         const currentValue = tokens[idx].attrs[aIndex][1];
-        if (currentValue.startsWith(options.customLinks)) {
+        const match = currentValue.match(options.customLinks);
+        if (match) {
           const attributes = options.customLinksHandler(
             'img',
             currentValue,
+            match[1],
             tokens
           );
           if (typeof attributes === 'string') {
