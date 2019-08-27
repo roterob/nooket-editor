@@ -114,7 +114,7 @@ export default function createHtmlRender(
               tokens
             );
             if (typeof attributes === 'string') {
-              tokens[idx].attrs[aIndex][1] = attributes;
+              return attributes;
             } else {
               addAttributes(tokens[idx], attributes);
             }
@@ -141,7 +141,7 @@ export default function createHtmlRender(
             tokens
           );
           if (typeof attributes === 'string') {
-            tokens[idx].attrs[aIndex][1] = attributes;
+            return attributes;
           } else {
             addAttributes(tokens[idx], attributes);
           }
