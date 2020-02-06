@@ -1,7 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import classNames from 'classnames';
-import ReactHtmlParser from 'react-html-parser';
 import { Icon, Dropdown, Menu } from 'antd';
 import { UnControlled as CodeMirrorWrap, IInstance } from './CodeMirrorWrap';
 import * as memoize from 'memoize-one';
@@ -129,15 +128,11 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   renderHtml: any = createHtmlRender(
     Object.assign({}, this.props.markdownItOptions, { addLineNumbers: true })
   );
-  renderHtmlDebounce: any = debounce(
-    value => ReactHtmlParser(this.renderHtml(value)),
-    300,
-    {
-      maxWait: 1000,
-      leading: true,
-      trailing: false,
-    }
-  );
+  renderHtmlDebounce: any = debounce(value => this.renderHtml(value), 300, {
+    maxWait: 1000,
+    leading: true,
+    trailing: false,
+  });
   scrollSync: any = null;
   sideBySideRef: any = React.createRef();
   previewPanel: HTMLElement = null;
@@ -564,7 +559,13 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
             'editor-preview-active-side': isSideBySide,
           })}
         >
-          {isSideBySide && this.renderHtmlDebounce(value)}
+          {isSideBySide && (
+            <div
+              dangerouslySetInnerHTML={{
+                __html: this.renderHtmlDebounce(value),
+              }}
+            />
+          )}
         </div>
         {isPreview && isFullscreen && (
           <div
