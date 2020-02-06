@@ -8,6 +8,7 @@ import * as Footnote from 'markdown-it-footnote';
 import * as Emoji from 'markdown-it-emoji';
 import * as katex from 'markdown-it-katex';
 import * as hljs from 'highlight.js';
+import markdownItMermaid from '@liradb2000/markdown-it-mermaid';
 
 export default function createHtmlRender(
   markdownItOptions?: any
@@ -15,7 +16,7 @@ export default function createHtmlRender(
   const defaults = {
     html: false, // Enable HTML tags in source
     xhtmlOut: false, // Use '/' to close single tags (<br />)
-    breaks: false, // Convert '\n' in paragraphs into <br>
+    breaks: true, // Convert '\n' in paragraphs into <br>
     langPrefix: 'language-', // CSS language prefix for fenced blocks
     linkify: true, // autoconvert URL-like texts to links
     linkTarget: '_blank', // set target to open link in
@@ -67,7 +68,12 @@ export default function createHtmlRender(
     .use(Sup)
     .use(Sub)
     .use(Footnote)
-    .use(Emoji);
+    .use(Emoji)
+    .use(markdownItMermaid, {
+      theme: 'default',
+      fontFamily: '"trebuchet ms", verdana, arial;',
+      startOnLoad: false,
+    });
 
   if (options.addLineNumbers) {
     function injectLineNumbers(tokens, idx, options, env, slf) {

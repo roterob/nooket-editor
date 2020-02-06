@@ -1,6 +1,6 @@
 {
   "name": "nooket-editor",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "description": "Custom markdown editor for Nooket",
   "main": "lib/index.js",
   "scripts": {
@@ -53,6 +53,7 @@
     "webpack": "^4.25.1"
   },
   "dependencies": {
+    "@liradb2000/markdown-it-mermaid": "^0.3.7",
     "codemirror": "^5.42.2",
     "codemirror-spell-checker": "^1.1.2",
     "fast-deep-equal": "^2.0.1",
@@ -68,6 +69,7 @@
     "markdown-it-mark": "^2.0.0",
     "markdown-it-sub": "^1.0.0",
     "markdown-it-sup": "^1.0.0",
+    "mermaid": "^8.4.6",
     "nooket-common": "0.0.9",
     "react-html-parser": "^2.0.2"
   },

@@ -5,6 +5,7 @@ import ReactHtmlParser from 'react-html-parser';
 import { Icon, Dropdown, Menu } from 'antd';
 import { UnControlled as CodeMirrorWrap, IInstance } from './CodeMirrorWrap';
 import * as memoize from 'memoize-one';
+import * as debounce from 'lodash.debounce';
 import {
   wordCount,
   getState,
@@ -127,6 +128,15 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
   savedOverflow: any = null;
   renderHtml: any = createHtmlRender(
     Object.assign({}, this.props.markdownItOptions, { addLineNumbers: true })
+  );
+  renderHtmlDebounce: any = debounce(
+    value => ReactHtmlParser(this.renderHtml(value)),
+    300,
+    {
+      maxWait: 1000,
+      leading: true,
+      trailing: false,
+    }
   );
   scrollSync: any = null;
   sideBySideRef: any = React.createRef();
@@ -554,7 +564,7 @@ class NooketEditor extends React.Component<NooketEditorProps, any> {
             'editor-preview-active-side': isSideBySide,
           })}
         >
-          {isSideBySide && ReactHtmlParser(this.renderHtml(value))}
+          {isSideBySide && this.renderHtmlDebounce(value)}
         </div>
         {isPreview && isFullscreen && (
           <div
