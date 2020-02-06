@@ -8,7 +8,7 @@ import * as Footnote from 'markdown-it-footnote';
 import * as Emoji from 'markdown-it-emoji';
 import * as katex from 'markdown-it-katex';
 import * as hljs from 'highlight.js';
-import markdownItMermaid from '@liradb2000/markdown-it-mermaid';
+import markdownItMermaid from './plugins/mermaid';
 
 export default function createHtmlRender(
   markdownItOptions?: any
