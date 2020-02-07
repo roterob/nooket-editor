@@ -9,6 +9,7 @@ import * as Emoji from 'markdown-it-emoji';
 import * as katex from 'markdown-it-katex';
 import * as hljs from 'highlight.js';
 import markdownItMermaid from './plugins/mermaid';
+import tasksPlugin from './plugins/tasks';
 
 export default function createHtmlRender(
   markdownItOptions?: any
@@ -73,7 +74,8 @@ export default function createHtmlRender(
       theme: 'default',
       fontFamily: '"trebuchet ms", verdana, arial;',
       startOnLoad: false,
-    });
+    })
+    .use(tasksPlugin);
 
   if (options.addLineNumbers) {
     function injectLineNumbers(tokens, idx, options, env, slf) {

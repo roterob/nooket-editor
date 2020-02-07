@@ -95,6 +95,12 @@ Start numbering with offset:
 57. foo
 1. bar
 
+Task list:
+
+- [] Task 1
+- [X] Task 2
+- [] Task 3
+
 
 ## Code
 

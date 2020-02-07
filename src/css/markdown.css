@@ -682,10 +682,6 @@
   border-color: #0366d6;
 }
 
-.markdown-body .task-list-item {
-  list-style-type: none;
-}
-
 .markdown-body .task-list-item + .task-list-item {
   margin-top: 3px;
 }

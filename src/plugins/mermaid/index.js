@@ -30,7 +30,6 @@ const MermaidPlugIn = (md, opts) => {
       token.info === 'pie' ||
       token.info.match(/^graph (?:TB|BT|RL|LR|TD);?$/)
     ) {
-      debugger;
       return MermaidChart(code);
     }
     // const firstLine = code.split(/\n/)[0].trim()
