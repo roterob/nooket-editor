@@ -25,6 +25,7 @@ const MermaidPlugIn = (md, opts) => {
       token.info === 'gantt' ||
       token.info === 'sequenceDiagram' ||
       token.info === 'classDiagram' ||
+      token.info === 'stateDiagram' ||
       token.info === 'gitGraph' ||
       token.info.match(/^graph (?:TB|BT|RL|LR|TD);?$/)
     ) {
