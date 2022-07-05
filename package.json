@@ -68,7 +68,7 @@
     "markdown-it-mark": "^2.0.0",
     "markdown-it-sub": "^1.0.0",
     "markdown-it-sup": "^1.0.0",
-    "mermaid": "^8.4.6",
+    "mermaid": "^9.1.2",
     "nooket-common": "0.0.9"
   },
   "peerDependencies": {
