@@ -41,7 +41,7 @@
     "babel-loader": "^8.0.0",
     "classnames": "^2.2.6",
     "memoize-one": "^4.0.2",
-    "moment": "^2.22.2",
+    "moment": "^2.29.4",
     "prop-types": "^15.6.2",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
@@ -78,6 +78,6 @@
     "antd": "3.20.1",
     "classnames": "^2.2.6",
     "memoize-one": "^4.0.2",
-    "moment": "^2.22.2"
+    "moment": "^2.29.4"
   }
 }
